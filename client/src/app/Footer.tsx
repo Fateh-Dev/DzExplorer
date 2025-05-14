@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRightIcon as TwitterIcon, LinkIcon } from "@heroicons/react/24/outline";
+import { FaTwitter, FaFacebook, FaLinkedin } from "react-icons/fa";
 import { COMPANY_COPYRIGHT, LOGO_FOOTER } from "./constants";
 
 const footerLinks = [
@@ -72,17 +72,29 @@ export default function AppFooter() {
                 href="https://x.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-300 hover:text-white cursor-pointer border border-transparent hover:border-white hover:border-2 p-1 rounded-full"
+                className="text-gray-300 hover:text-white cursor-pointer   p-1 rounded-full"
               >
-                <TwitterIcon className="h-6 w-6" />
+                <FaTwitter className="h-6 w-6" />
               </a>
+
+              {/* Facebook Icon */}
+              <a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-300 hover:text-white cursor-pointer   p-1 rounded-full"
+              >
+                <FaFacebook className="h-6 w-6" />
+              </a>
+
+              {/* LinkedIn Icon */}
               <a
                 href="https://linkedin.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-300 hover:text-white cursor-pointer border border-transparent hover:border-white hover:border-2 p-1 rounded-full"
+                className="text-gray-300 hover:text-white cursor-pointer   p-1 rounded-full"
               >
-                <LinkIcon className="h-6 w-6" />
+                <FaLinkedin className="h-6 w-6" />
               </a>
             </div>
           </div>

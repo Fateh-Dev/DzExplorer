@@ -20,12 +20,12 @@ const Card = ({
   const [imgSrc, setImgSrc] = useState(image);
 
   return (
-    <div className="relative   sm:w-full h-auto flex flex-col rounded-md bg-white shadow-lg overflow-hidden hover:border-cyan-800 hover:border-1">
+    <div className="relative sm:w-full h-auto flex flex-col rounded-md bg-white shadow-lg overflow-hidden border-1 border-transparent   hover:border-cyan-800 ">
       {/* Image */}
       <div className="relative w-full h-36">
         <Image src={imgSrc} alt={title} layout="fill" className="object-cover" onError={() => setImgSrc(DEFAULT_IMAGE)} />
         {/* Favorite Icon */}
-        <button className="absolute top-2 right-2 rounded-full bg-white/80 p-1 hover:bg-red-500 hover:text-white transition">
+        <button className="absolute top-2 right-2 rounded-full bg-white/80 p-1 cursor-pointer hover:bg-red-500 hover:text-white transition">
           <HeartIcon className="h-5 w-5  " />
         </button>
       </div>

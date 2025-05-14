@@ -158,15 +158,14 @@ const TripDetails = () => {
               {trip.images.map((image, index) => ( 
                 <PhotoView src={image.url} key={index}>
                  <div className="rounded-md overflow-hidden shadow-lg mb-8 border-2 border-gray-200">
-  <Image
-    src={image.url}
-    alt={`gallery-image-${index}`}
-    width={100}
-    height={60}
-    className="cursor-pointer w-[100px] h-[60px] object-cover"
-  />
-</div>
-
+                  <Image
+                    src={image.url}
+                    alt={`gallery-image-${index}`}
+                    width={100}
+                    height={60}
+                    className="cursor-pointer w-[100px] h-[60px] object-cover"
+                  />
+                </div>
                 </PhotoView> 
               ))}
             </div>

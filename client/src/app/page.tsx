@@ -5,7 +5,7 @@ import { ArrowUp, Search, RefreshCcw } from "lucide-react";
 
 import Link from "next/link";
 import Image from "next/image";
-import { BASE_SERVER_URL, PAGE_SIZE } from "./constants";
+import { BASE_SERVER_URL, NO_TRIP_IMAGE, PAGE_SIZE } from "./constants";
 interface Trip {
   id: number;
   title: string;
@@ -128,7 +128,7 @@ const HomePage = () => {
       {data.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center text-gray-500">
           <Image
-            src="/notrip.png"
+            src={NO_TRIP_IMAGE}
             alt="No trips found"
             width={192} // equivalent to w-48
             height={192} // equivalent to h-48
