@@ -2,10 +2,10 @@
 import React, { useState, useEffect } from "react";
 import Card from "./cards/Card";
 import { ArrowUp, Search, RefreshCcw } from "lucide-react";
-
 import Link from "next/link";
 import Image from "next/image";
 import { BASE_SERVER_URL, NO_TRIP_IMAGE, PAGE_SIZE } from "./constants";
+
 interface Trip {
   id: number;
   title: string;
@@ -29,28 +29,36 @@ const HomePage = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [searchQueryInput, setSearchQueryInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // New loading state
 
   const fetchData = async (pageNumber = 1) => {
-    const params = new URLSearchParams({
-      page: pageNumber.toString(),
-      limit: PAGE_SIZE.toString()
-    });
+    setIsLoading(true); // Set loading to true before fetching
+    try {
+      const params = new URLSearchParams({
+        page: pageNumber.toString(),
+        limit: PAGE_SIZE.toString()
+      });
 
-    if (searchQuery) params.append("search", searchQuery);
-    if (startDate) params.append("startDate", startDate);
-    if (endDate) params.append("endDate", endDate);
+      if (searchQuery) params.append("search", searchQuery);
+      if (startDate) params.append("startDate", startDate);
+      if (endDate) params.append("endDate", endDate);
 
-    const res = await fetch(`${BASE_SERVER_URL}/trips-with-pagination?${params.toString()}`);
-    const result = await res.json();
+      const res = await fetch(`${BASE_SERVER_URL}/trips-with-pagination?${params.toString()}`);
+      const result = await res.json();
 
-    if (result.data.length < PAGE_SIZE) {
-      setHasMore(false);
-    }
+      if (result.data.length < PAGE_SIZE) {
+        setHasMore(false);
+      }
 
-    if (pageNumber === 1) {
-      setData(result.data);
-    } else {
-      setData(prev => [...prev, ...result.data]);
+      if (pageNumber === 1) {
+        setData(result.data);
+      } else {
+        setData(prev => [...prev, ...result.data]);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false); // Set loading to false after fetching
     }
   };
 
@@ -85,7 +93,6 @@ const HomePage = () => {
     <div className="mx-auto w-full max-w-7xl py-4 relative">
       {/* Search Inputs */}
       <div className="mb-6 flex flex-wrap sm:flex-nowrap space-x-0 sm:space-x-2 space-y-2 sm:space-y-0">
-        {/* Search Input with Icon */}
         <div className="relative w-full sm:w-4/6">
           <input
             type="text"
@@ -106,16 +113,12 @@ const HomePage = () => {
             <Search size={18} />
           </button>
         </div>
-
-        {/* Start Date */}
         <input
           type="date"
           className="w-full sm:w-1/6 p-3 border border-gray-300 rounded-md shadow-md bg-white"
           value={startDate}
           onChange={e => setStartDate(e.target.value)}
         />
-
-        {/* End Date */}
         <input
           type="date"
           className="w-full sm:w-1/6 p-3 border border-gray-300 rounded-md shadow-md bg-white"
@@ -124,16 +127,28 @@ const HomePage = () => {
         />
       </div>
 
-      {/* Cards Grid */}
-      {data.length === 0 ? (
+      {/* Loading State */}
+      {isLoading ? (
         <div className="flex flex-col items-center justify-center py-12 text-center text-gray-500">
-          <Image
-            src={NO_TRIP_IMAGE}
-            alt="No trips found"
-            width={192} // equivalent to w-48
-            height={192} // equivalent to h-48
-            className="mb-4 opacity-80"
-          />
+          <svg
+            className="animate-spin h-10 w-10 text-cyan-900 mb-4"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
+          </svg>
+          <p className="text-lg">Loading trips...</p>
+        </div>
+      ) : data.length === 0 ? (
+        /* No Trips Found */
+        <div className="flex flex-col items-center justify-center py-12 text-center text-gray-500">
+          <Image src={NO_TRIP_IMAGE} alt="No trips found" width={192} height={192} className="mb-4 opacity-80" />
           <p className="text-lg">No trips found.</p>
         </div>
       ) : (
@@ -152,13 +167,12 @@ const HomePage = () => {
               </Link>
             ))}
           </div>
-
-          {/* Load More Button */}
           {hasMore && (
             <div className="flex justify-center mt-6">
               <button
                 onClick={handleLoadMore}
                 className="flex items-center gap-2 px-6 py-3 border-2 border-cyan-900 text-cyan-900 rounded-md hover:bg-cyan-100 cursor-pointer"
+                disabled={isLoading} // Disable button while loading
               >
                 <RefreshCcw size={18} />
                 Load More
