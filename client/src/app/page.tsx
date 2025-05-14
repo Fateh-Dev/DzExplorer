@@ -5,6 +5,7 @@ import { ArrowUp, Search, RefreshCcw } from "lucide-react";
 
 import Link from "next/link";
 import Image from "next/image";
+import { BASE_SERVER_URL, PAGE_SIZE } from "./constants";
 interface Trip {
   id: number;
   title: string;
@@ -32,17 +33,17 @@ const HomePage = () => {
   const fetchData = async (pageNumber = 1) => {
     const params = new URLSearchParams({
       page: pageNumber.toString(),
-      limit: "16"
+      limit: PAGE_SIZE.toString()
     });
 
     if (searchQuery) params.append("search", searchQuery);
     if (startDate) params.append("startDate", startDate);
     if (endDate) params.append("endDate", endDate);
 
-    const res = await fetch(`http://192.168.100.19:3001/trips?${params.toString()}`);
+    const res = await fetch(`${BASE_SERVER_URL}/trips-with-pagination?${params.toString()}`);
     const result = await res.json();
 
-    if (result.data.length < 16) {
+    if (result.data.length < PAGE_SIZE) {
       setHasMore(false);
     }
 
@@ -139,7 +140,7 @@ const HomePage = () => {
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 cursor-pointer">
             {data.map((trip, index) => (
-              <Link href={`/trips/${trip.id}`} key={index} className="flex cursor-pointer">
+              <Link href={`/trips/${trip.id}`} key={trip.id} className="flex cursor-pointer">
                 <Card
                   key={index}
                   image={trip.image}

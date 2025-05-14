@@ -14,49 +14,55 @@ import {
 } from "lucide-react";
 import { PhotoProvider, PhotoView } from "react-photo-view";
 import "react-photo-view/dist/react-photo-view.css";
+ 
+ import { BASE_SERVER_URL, DEFAULT_IMAGE } from "../../constants";
 
-// Fake comments data
-const fakeComments = [
-  {
-    id: 1,
-    name: "Ahmed B.",
-    content: "Un voyage incroyable ! Très bien organisé et inoubliable.",
-    date: "2024-12-01",
-  },
-  {
-    id: 2,
-    name: "Sonia L.",
-    content: "J’ai adoré chaque instant. Je recommande fortement !",
-    date: "2025-01-15",
-  },
-  {
-    id: 3,
-    name: "Karim D.",
-    content: "Belle expérience, mais l’hébergement peut être amélioré.",
-    date: "2025-02-20",
-  },
-];
+export interface TripImage {
+  id: number;
+  url: string;
+  isMain: boolean;
+  createdAt: string;
+  updatedAt: string;
+  tripId: number;
+}
 
-const galleryImages = [
-  "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
-  "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
-  "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
-  "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
-];
+export interface TripComment {
+  id: number;
+  description: string;
+  rating: number;
+  date: string; // format: YYYY-MM-DD
+  time: string; // format: HH:MM:SS
+  createdAt: string;
+  updatedAt: string;
+  userId: number;
+  tripId: number;
+}
 
-interface Trip {
+export interface TripUser {
+  id: number;
+  username: string;
+  email: string;
+  profile: string | null;
+}
+
+export interface Trip {
   id: number;
   title: string;
   description: string;
   rating: number;
   image: string;
-  date: string;
-  views: number;
   thumbnail: string;
   price: number;
+  date: string; // format: YYYY-MM-DD
+  views: number;
   createdAt: string;
   updatedAt: string;
+  userId: number;
+  images: TripImage[];
+  comments: TripComment[];
+  User: TripUser;
 }
+
 
 const TripDetails = () => {
   const params = useParams();
@@ -75,7 +81,7 @@ const TripDetails = () => {
 
     const fetchTrip = async () => {
       try {
-        const res = await fetch(`http://192.168.100.19:3001/trips/${id}`);
+        const res = await fetch(`${BASE_SERVER_URL}/trips/${id}`);
         if (!res.ok) throw new Error("Trip not found");
         const data = await res.json();
         setTrip(data);
@@ -121,7 +127,7 @@ const TripDetails = () => {
           objectFit="cover"
           onError={() =>
             setImgSrc(
-              "https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80"
+             DEFAULT_IMAGE
             )
           }
         />
@@ -149,16 +155,18 @@ const TripDetails = () => {
           <PhotoProvider>
             <div className="p-2 relative gap-2 inset-0  flex justify-end items-center z-20 ">
               {/* Loop through all images */}
-              {galleryImages.map((image, index) => ( 
-                <PhotoView src={image} key={index}>
-                  <div  className="rounded-md overflow-hidden shadow-lg mb-8 border-2 border-gray-200">
-                  <Image
-                    src={image}
-                    alt={`gallery-image-${index}`}
-                    width={100}
-                    height={60}
-                    className="cursor-pointer"
-                  /></div>
+              {trip.images.map((image, index) => ( 
+                <PhotoView src={image.url} key={index}>
+                 <div className="rounded-md overflow-hidden shadow-lg mb-8 border-2 border-gray-200">
+  <Image
+    src={image.url}
+    alt={`gallery-image-${index}`}
+    width={100}
+    height={60}
+    className="cursor-pointer w-[100px] h-[60px] object-cover"
+  />
+</div>
+
                 </PhotoView> 
               ))}
             </div>
@@ -220,20 +228,20 @@ const TripDetails = () => {
       <div className="mt-12">
         <h3 className="text-xl font-semibold mb-4 text-gray-800">Commentaires</h3>
         <div className="space-y-6">
-          {fakeComments.map((comment) => (
+          {trip.comments.map((comment) => (
             <div
               key={comment.id}
               className="bg-white p-4 rounded-md shadow-sm border border-gray-100"
             >
               <div className="flex justify-between items-center mb-2">
                 <span className="font-semibold text-gray-800">
-                  {comment.name}
+                  {comment.userId}
                 </span>
                 <span className="text-sm text-gray-500">
                   {new Date(comment.date).toLocaleDateString("fr-FR")}
                 </span>
               </div>
-              <p className="text-gray-700">{comment.content}</p>
+              <p className="text-gray-700">{comment.description}</p>
             </div>
           ))}
         </div>

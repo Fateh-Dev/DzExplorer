@@ -3,6 +3,7 @@ import { HeartIcon, StarIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import { useState } from "react";
 import { ShoppingCart } from "lucide-react";
+import { DEFAULT_IMAGE } from "../constants";
 const Card = ({
   image,
   title,
@@ -22,17 +23,7 @@ const Card = ({
     <div className="relative   sm:w-full h-auto flex flex-col rounded-md bg-white shadow-lg overflow-hidden hover:border-cyan-800 hover:border-1">
       {/* Image */}
       <div className="relative w-full h-36">
-        <Image
-          src={imgSrc}
-          alt={title}
-          layout="fill"
-          className="object-cover"
-          onError={() =>
-            setImgSrc(
-              "https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80"
-            )
-          }
-        />
+        <Image src={imgSrc} alt={title} layout="fill" className="object-cover" onError={() => setImgSrc(DEFAULT_IMAGE)} />
         {/* Favorite Icon */}
         <button className="absolute top-2 right-2 rounded-full bg-white/80 p-1 hover:bg-red-500 hover:text-white transition">
           <HeartIcon className="h-5 w-5  " />
