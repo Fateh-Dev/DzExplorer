@@ -43,7 +43,7 @@ const HomePage = () => {
       if (startDate) params.append("startDate", startDate);
       if (endDate) params.append("endDate", endDate);
 
-      const res = await fetch(`${BASE_SERVER_URL}/trips-with-pagination?${params.toString()}`);
+      const res = await fetch(`${BASE_SERVER_URL}/trips/with-pagination?${params.toString()}`);
       const result = await res.json();
 
       if (result.data.length < PAGE_SIZE) {
