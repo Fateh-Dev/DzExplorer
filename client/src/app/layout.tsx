@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "./Navbar";
 import AppFooter from "./Footer";
+import {AuthProvider} from "./context/authContext";
 import { COMPANY_NAME, LOGO_MAIN } from "./constants";
  
  
@@ -20,19 +21,17 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
+ return (
     <html lang="en">
-      
-      <body
-        className={`antialiased flex flex-col min-h-screen`}
-      >
-        <Navbar />
-        <main className="flex-grow bg-gray-100">
-          <div className="mx-auto max-w-7xl p-2 sm:px-6 lg:px-8">
-            {children}
-          </div>
-        </main>
-        <AppFooter />
+      <body className="antialiased flex flex-col min-h-screen">
+        {/* ✅ Wrap everything inside AuthProvider */}
+        <AuthProvider>
+          <Navbar />
+          <main className="flex-grow bg-gray-100">
+            <div className="mx-auto max-w-7xl p-2 sm:px-6 lg:px-8">{children}</div>
+          </main>
+          <AppFooter />
+        </AuthProvider>
       </body>
     </html>
   );

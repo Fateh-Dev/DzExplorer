@@ -8,7 +8,11 @@ const swaggerSpec = require("./config/swagger");
 const app = express();
 
 // Allow all origins (for development purposes)
-app.use(cors()); // Allows all domains to access your API
+app.use(
+  cors({
+    origin: "*" // autorise toutes les origines (en dev uniquement)
+  })
+); // Allows all domains to access your API
 
 // Alternatively, restrict to specific origins
 // app.use(cors({
