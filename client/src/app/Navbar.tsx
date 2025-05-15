@@ -61,9 +61,9 @@ export default function Navbar() {
                       aria-current={pathname === item.href ? "page" : undefined}
                       className={classNames(
                         pathname === item.href
-                          ? "text-white border-2 border-white"
+                          ? "text-white rounded-b-none border-b-4 border-white"
                           : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                        "flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium"
+                        "flex items-center gap-1 rounded-md px-3 py-0 text-sm font-medium"
                       )}
                     >
                       <Icon size={16} />
@@ -77,44 +77,49 @@ export default function Navbar() {
           {/* Right side (Login / Avatar) */}
           <div className="absolute inset-y-0 right-0 flex items-center gap-x-3 pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
             {isLoggedIn ? (
-              <Menu as="div" className="relative ml-3">
-                <div>
-                  <MenuButton className="relative flex rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden">
-                    <span className="sr-only">Open user menu</span>
-                    <Image
-                      alt="User avatar"
-                      src="/blank-avatar.png"
-                      width={32}
-                      height={32}
-                      className="rounded-full object-cover cursor-pointer"
-                    />
-                  </MenuButton>
-                </div>
-                <MenuItems className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
-                  <MenuItem>
-                    <Link href="/profile" className=" cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      Your Profile
-                    </Link>
-                  </MenuItem>
-                  <MenuItem>
-                    <a href="#" className=" cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      Settings
-                    </a>
-                  </MenuItem>
-                  <MenuItem>
-                    <button
-                      onClick={logout}
-                      className="block w-full cursor-pointer text-left px-4 py-2 text-sm text-gray-700 focus:bg-gray-100"
-                    >
-                      Sign out
-                    </button>
-                  </MenuItem>
-                </MenuItems>
-              </Menu>
+              <div className="flex items-center gap-4">
+                <button className="rounded-md px-4 py-2 text-sm font-semibold border-2 border-white text-white shadow hover:bg-cyan-700 cursor-pointer">
+                  Create a Trip
+                </button>
+                <Menu as="div" className="relative ml-3">
+                  <div>
+                    <MenuButton className="relative flex rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden">
+                      <span className="sr-only">Open user menu</span>
+                      <Image
+                        alt="User avatar"
+                        src="/blank-avatar.png"
+                        width={32}
+                        height={32}
+                        className="rounded-full object-cover cursor-pointer"
+                      />
+                    </MenuButton>
+                  </div>
+                  <MenuItems className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
+                    <MenuItem>
+                      <Link href="/profile" className=" cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Your Profile
+                      </Link>
+                    </MenuItem>
+                    <MenuItem>
+                      <a href="#" className=" cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Settings
+                      </a>
+                    </MenuItem>
+                    <MenuItem>
+                      <button
+                        onClick={logout}
+                        className="block w-full cursor-pointer text-left px-4 py-2 text-sm text-gray-700 focus:bg-gray-100"
+                      >
+                        Sign out
+                      </button>
+                    </MenuItem>
+                  </MenuItems>
+                </Menu>
+              </div>
             ) : (
               <button
                 onClick={() => router.push("/login")}
-                className="rounded-md bg-white px-4 py-2 text-sm font-semibold text-cyan-900 shadow hover:bg-gray-100  cursor-pointer"
+                className="rounded-md px-4 py-2 text-sm font-semibold border-2 border-white text-white shadow hover:bg-cyan-700 cursor-pointer"
               >
                 Login
               </button>

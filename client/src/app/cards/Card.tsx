@@ -118,7 +118,7 @@ const Card = ({
       {/* Content */}
       
       <div className="flex flex-col justify-between flex-1 p-4 space-y-2">
-      <Link href={`/trips/${id}`}className="  cursor-pointer" prefetch={false} > 
+      <Link href={`/trips/${id}`} className="cursor-pointer" prefetch={false} > 
         <div>
           <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
             {title}
