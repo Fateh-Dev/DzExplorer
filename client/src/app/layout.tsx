@@ -5,7 +5,7 @@ import Navbar from "./Navbar";
 import AppFooter from "./Footer";
 import {AuthProvider} from "./context/authContext";
 import { COMPANY_NAME, LOGO_MAIN } from "./constants";
- 
+ import { Toaster } from "react-hot-toast";
  
 
 export const metadata: Metadata = {
@@ -28,7 +28,7 @@ export default function RootLayout({
         <AuthProvider>
           <Navbar />
           <main className="flex-grow bg-gray-100">
-            <div className="mx-auto max-w-7xl p-2 sm:px-6 lg:px-8">{children}</div>
+            <div className="mx-auto max-w-7xl p-2 sm:px-6 lg:px-8">{children}</div> <Toaster position="top-right" />
           </main>
           <AppFooter />
         </AuthProvider>

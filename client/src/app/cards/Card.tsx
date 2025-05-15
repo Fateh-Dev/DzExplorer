@@ -7,7 +7,8 @@ import { ShoppingCart } from "lucide-react";
 import { DEFAULT_IMAGE } from "../constants";
 import { useAuth } from "../context/authContext";
 import api from "../lib/axios";
-
+import toast from "react-hot-toast";
+import Link from "next/link";
 interface CardProps {
   id: number;
   image: string;
@@ -61,16 +62,19 @@ const Card = ({
         await api.post(`/wishlist/${id}`, null, {
           headers: { Authorization: `Bearer ${token}` },
         });
+         toast.success(`Added "${title}" to your wishlist!`);
       } else {
         await api.delete(`/wishlist/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+         toast.success(`Removed "${title}" from your wishlist.`);
       }
 
       setInWishlist(newWishlistStatus);
       onWishlistToggle?.(id, newWishlistStatus); // Notify HomePage
     } catch (err) {
       console.error("Failed to update wishlist", err);
+  toast.error("Failed to update wishlist. Please try again.");
     }
   };
 
@@ -78,7 +82,8 @@ const Card = ({
     <div className="relative sm:w-full h-auto flex flex-col rounded-md bg-white shadow-lg overflow-hidden border-1 border-transparent hover:border-cyan-800">
       {/* Image */}
       <div className="relative w-full h-36">
-        <Image
+      <Link href={`/trips/${id}`}className="  cursor-pointer"> 
+      <Image
           src={image}
           alt={title}
           width={300} // Match your design
@@ -91,6 +96,7 @@ const Card = ({
           }}
           quality={80} // Balance quality and performance
         />
+        </Link> 
         {isLoggedIn && (
           <button
             onClick={handleWishlistToggle}
@@ -101,9 +107,9 @@ const Card = ({
             }`}
           >
             {inWishlist ? (
-              <SolidHeartIcon className="h-5 w-5" />
+              <SolidHeartIcon className="h-5 w-5 cursor-pointer" />
             ) : (
-              <OutlineHeartIcon className="h-5 w-5" />
+              <OutlineHeartIcon className="h-5 w-5 cursor-pointer" />
             )}
           </button>
         )}

@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Card from "./cards/Card";
 import { ArrowUp, Search, RefreshCcw } from "lucide-react";
-import Link from "next/link";
+// import Link from "next/link";
 import Image from "next/image";
 import { NO_TRIP_IMAGE, PAGE_SIZE } from "./constants";
 import api from "./lib/axios";
@@ -225,18 +225,19 @@ const HomePage = () => {
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 cursor-pointer">
             {data.map(trip => (
-              <Link href={`/trips/${trip.id}`} key={trip.id} className="flex cursor-pointer">
-                <Card
-                  id={trip.id}
-                  image={trip.image}
-                  title={trip.title}
-                  description={trip.description}
-                  price={"DZD " + trip.price.toFixed(2)}
-                  rating={trip.rating}
-                  inWishlist={wishlistMap.get(trip.id) || false}
-                  onWishlistToggle={handleWishlistToggle} // Pass callback
-                />
-              </Link>
+              // <Link href={`/trips/${trip.id}`}className="flex cursor-pointer">
+              <Card
+                key={trip.id}
+                id={trip.id}
+                image={trip.image}
+                title={trip.title}
+                description={trip.description}
+                price={"DZD " + trip.price.toFixed(2)}
+                rating={trip.rating}
+                inWishlist={wishlistMap.get(trip.id) || false}
+                onWishlistToggle={handleWishlistToggle} // Pass callback
+              />
+              // </Link>
             ))}
           </div>
           {hasMore && (

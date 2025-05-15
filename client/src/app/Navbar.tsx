@@ -86,25 +86,25 @@ export default function Navbar() {
                       src="/blank-avatar.png"
                       width={32}
                       height={32}
-                      className="rounded-full object-cover"
+                      className="rounded-full object-cover cursor-pointer"
                     />
                   </MenuButton>
                 </div>
                 <MenuItems className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
                   <MenuItem>
-                    <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <Link href="/profile" className=" cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                       Your Profile
                     </Link>
                   </MenuItem>
                   <MenuItem>
-                    <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <a href="#" className=" cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                       Settings
                     </a>
                   </MenuItem>
                   <MenuItem>
                     <button
                       onClick={logout}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 focus:bg-gray-100"
+                      className="block w-full cursor-pointer text-left px-4 py-2 text-sm text-gray-700 focus:bg-gray-100"
                     >
                       Sign out
                     </button>
@@ -114,7 +114,7 @@ export default function Navbar() {
             ) : (
               <button
                 onClick={() => router.push("/login")}
-                className="rounded-md bg-white px-4 py-2 text-sm font-semibold text-cyan-900 shadow hover:bg-gray-100"
+                className="rounded-md bg-white px-4 py-2 text-sm font-semibold text-cyan-900 shadow hover:bg-gray-100  cursor-pointer"
               >
                 Login
               </button>
