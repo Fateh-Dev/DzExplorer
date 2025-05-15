@@ -1,12 +1,13 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Card from "./cards/Card";
 import { ArrowUp, Search, RefreshCcw } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { NO_TRIP_IMAGE, PAGE_SIZE } from "./constants";
 import api from "./lib/axios";
-import { useAuth } from "./context/authContext"; // make sure this exists
+import { useAuth } from "./context/authContext";
+
 interface Trip {
   id: number;
   title: string;
@@ -30,65 +31,96 @@ const HomePage = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [searchQueryInput, setSearchQueryInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // New loading state
-  const { isLoggedIn } = useAuth(); // track login
+  const [isLoading, setIsLoading] = useState(false);
+  const { isLoggedIn } = useAuth();
   const [wishlistIds, setWishlistIds] = useState<number[]>([]);
 
-  // Fetch wishlist only once
-  const fetchWishlist = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await api.get("/wishlist", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const wishlist: { id: number }[] = res.data;
-      const ids = wishlist.map(item => item.id);
-      setWishlistIds(ids);
-    } catch (err) {
-      console.error("Failed to fetch wishlist", err);
-    }
-  };
-
-  useEffect(
-    () => {
-      if (isLoggedIn) {
-        fetchWishlist();
-      } else {
+  const fetchWishlist = useCallback(
+    async () => {
+      if (!isLoggedIn) {
+        setWishlistIds([]);
+        return;
+      }
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setWishlistIds([]);
+          return;
+        }
+        const res = await api.get("/wishlist", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const wishlist: { id: number }[] = res.data;
+        const ids = wishlist.map(item => item.id);
+        setWishlistIds(ids);
+      } catch (err) {
+        console.error("Failed to fetch wishlist", err);
         setWishlistIds([]);
       }
     },
     [isLoggedIn]
   );
-  const fetchData = async (pageNumber = 1) => {
-    setIsLoading(true); // Set loading to true before fetching
-    try {
-      const params = new URLSearchParams({
-        page: pageNumber.toString(),
-        limit: PAGE_SIZE.toString()
-      });
 
-      if (searchQuery) params.append("search", searchQuery);
-      if (startDate) params.append("startDate", startDate);
-      if (endDate) params.append("endDate", endDate);
+  // New: Handle wishlist toggle from Card
+  const handleWishlistToggle = useCallback((id: number, inWishlist: boolean) => {
+    setWishlistIds(prev => (inWishlist ? [...prev, id] : prev.filter(wid => wid !== id)));
+  }, []);
 
-      const res = await api.get("/trips/with-pagination", { params, withCredentials: false });
-      const result = res.data;
+  useEffect(
+    () => {
+      fetchWishlist();
+    },
+    [fetchWishlist]
+  );
 
-      if (result.data.length < PAGE_SIZE) {
-        setHasMore(false);
+  // ... (fetchData, handleLoadMore, scroll handler remain unchanged)
+
+  // Memoize wishlist check
+  const wishlistMap = useMemo(
+    () => {
+      const map = new Map<number, boolean>();
+      wishlistIds.forEach(id => map.set(id, true));
+      return map;
+    },
+    [wishlistIds]
+  );
+
+  const fetchData = useCallback(
+    async (pageNumber = 1) => {
+      setIsLoading(true);
+      try {
+        const params = new URLSearchParams({
+          page: pageNumber.toString(),
+          limit: PAGE_SIZE.toString()
+        });
+
+        if (searchQuery) params.append("search", searchQuery);
+        if (startDate) params.append("startDate", startDate);
+        if (endDate) params.append("endDate", endDate);
+
+        const res = await api.get("/trips/with-pagination", {
+          params,
+          withCredentials: false
+        });
+        const result = res.data;
+
+        if (result.data.length < PAGE_SIZE) {
+          setHasMore(false);
+        }
+
+        if (pageNumber === 1) {
+          setData(result.data);
+        } else {
+          setData(prev => [...prev, ...result.data]);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
       }
-
-      if (pageNumber === 1) {
-        setData(result.data);
-      } else {
-        setData(prev => [...prev, ...result.data]);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setIsLoading(false); // Set loading to false after fetching
-    }
-  };
+    },
+    [searchQuery, startDate, endDate]
+  );
 
   useEffect(
     () => {
@@ -96,21 +128,31 @@ const HomePage = () => {
       setHasMore(true);
       fetchData(1);
     },
-    [searchQuery, startDate, endDate]
+    [fetchData]
   );
 
   const handleLoadMore = () => {
+    if (isLoading || !hasMore) return;
     const nextPage = page + 1;
     setPage(nextPage);
     fetchData(nextPage);
   };
 
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
     const handleScroll = () => {
-      setShowGoToTop(window.scrollY > 300);
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setShowGoToTop(window.scrollY > 300);
+      }, 100);
     };
+
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   const handleGoToTop = () => {
@@ -119,7 +161,6 @@ const HomePage = () => {
 
   return (
     <div className="mx-auto w-full max-w-7xl py-4 relative">
-      {/* Search Inputs */}
       <div className="mb-6 flex flex-wrap sm:flex-nowrap space-x-0 sm:space-x-2 space-y-2 sm:space-y-0">
         <div className="relative w-full sm:w-4/6">
           <input
@@ -137,6 +178,7 @@ const HomePage = () => {
           <button
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
             onClick={() => setSearchQuery(searchQueryInput)}
+            aria-label="Search trips"
           >
             <Search size={18} />
           </button>
@@ -146,16 +188,17 @@ const HomePage = () => {
           className="w-full sm:w-1/6 p-3 border border-gray-300 rounded-md shadow-md bg-white"
           value={startDate}
           onChange={e => setStartDate(e.target.value)}
+          aria-label="Start date"
         />
         <input
           type="date"
           className="w-full sm:w-1/6 p-3 border border-gray-300 rounded-md shadow-md bg-white"
           value={endDate}
           onChange={e => setEndDate(e.target.value)}
+          aria-label="End date"
         />
       </div>
 
-      {/* Loading State */}
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-12 text-center text-gray-500">
           <svg
@@ -174,7 +217,6 @@ const HomePage = () => {
           <p className="text-lg">Loading trips...</p>
         </div>
       ) : data.length === 0 ? (
-        /* No Trips Found */
         <div className="flex flex-col items-center justify-center py-12 text-center text-gray-500">
           <Image src={NO_TRIP_IMAGE} alt="No trips found" width={192} height={192} className="mb-4 opacity-80" />
           <p className="text-lg">No trips found.</p>
@@ -182,17 +224,17 @@ const HomePage = () => {
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 cursor-pointer">
-            {data.map((trip, index) => (
+            {data.map(trip => (
               <Link href={`/trips/${trip.id}`} key={trip.id} className="flex cursor-pointer">
                 <Card
-                  key={index}
                   id={trip.id}
                   image={trip.image}
                   title={trip.title}
                   description={trip.description}
                   price={"DZD " + trip.price.toFixed(2)}
                   rating={trip.rating}
-                  inWishlist={wishlistIds.includes(trip.id)} // 👈 new prop
+                  inWishlist={wishlistMap.get(trip.id) || false}
+                  onWishlistToggle={handleWishlistToggle} // Pass callback
                 />
               </Link>
             ))}
@@ -202,7 +244,8 @@ const HomePage = () => {
               <button
                 onClick={handleLoadMore}
                 className="flex items-center gap-2 px-6 py-3 border-2 border-cyan-900 text-cyan-900 rounded-md hover:bg-cyan-100 cursor-pointer"
-                disabled={isLoading} // Disable button while loading
+                disabled={isLoading}
+                aria-label="Load more trips"
               >
                 <RefreshCcw size={18} />
                 Load More
@@ -212,7 +255,6 @@ const HomePage = () => {
         </>
       )}
 
-      {/* Go to Top Button */}
       {showGoToTop && (
         <button
           onClick={handleGoToTop}
