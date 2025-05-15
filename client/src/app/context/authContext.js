@@ -2,26 +2,23 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-// Create the context
 const AuthContext = createContext(null);
 
-// Hook to use the auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 };
 
-// Provider component
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     setIsLoggedIn(!!token);
+    setHasMounted(true);
   }, []);
 
   const login = () => setIsLoggedIn(true);
@@ -29,8 +26,12 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
-    router.push("/login");
+    router.push("/");
   };
 
-  return <AuthContext.Provider value={{ isLoggedIn, login, logout }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ isLoggedIn, login, logout, hasMounted }}>
+      {children} {/* Always render children */}
+    </AuthContext.Provider>
+  );
 };

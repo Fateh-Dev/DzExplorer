@@ -15,7 +15,8 @@ import {
 import { PhotoProvider, PhotoView } from "react-photo-view";
 import "react-photo-view/dist/react-photo-view.css";
  
- import { BASE_SERVER_URL, DEFAULT_IMAGE } from "../../constants";
+ import {  DEFAULT_IMAGE } from "../../constants";
+import api from "@/app/lib/axios";
 
 export interface TripImage {
   id: number;
@@ -79,19 +80,17 @@ const TripDetails = () => {
   useEffect(() => {
     if (!id || effectRan.current) return;
 
-    const fetchTrip = async () => {
-      try {
-        const res = await fetch(`${BASE_SERVER_URL}/trips/details/${id}`);
-        if (!res.ok) throw new Error("Trip not found");
-        const data = await res.json();
-        setTrip(data);
-        setImgSrc(data.image);
-      } catch {
-        setError("Échec du chargement des détails du voyage");
-      } finally {
-        setLoading(false);
-      }
-    };
+   const fetchTrip = async () => {
+  try {
+    const res = await api.get(`/trips/details/${id}`, {  withCredentials: false });
+    setTrip(res.data);
+    setImgSrc(res.data.image);
+  } catch {
+    setError("Échec du chargement des détails du voyage");
+  } finally {
+    setLoading(false);
+  }
+};
 
     fetchTrip();
     effectRan.current = true;

@@ -5,15 +5,24 @@ const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
 
+const allowedOrigins = ["http://192.168.100.19:3000", "http://localhost:3000"];
 const app = express();
 
-// Allow all origins (for development purposes)
-app.use(
-  cors({
-    origin: "*" // autorise toutes les origines (en dev uniquement)
-  })
-); // Allows all domains to access your API
+const corsOptions = {
+  origin: function(origin, callback) {
+    // allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
 
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true); // origin allowed
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
+};
+
+app.use(cors(corsOptions));
 // Alternatively, restrict to specific origins
 // app.use(cors({
 //   origin: 'http://your-frontend-domain.com',

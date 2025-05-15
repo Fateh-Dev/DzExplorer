@@ -1,33 +1,68 @@
 "use client";
-import { HeartIcon, StarIcon } from "@heroicons/react/24/solid";
+import { HeartIcon as SolidHeartIcon, StarIcon } from "@heroicons/react/24/solid";
+import { HeartIcon as OutlineHeartIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import { useState } from "react";
 import { ShoppingCart } from "lucide-react";
 import { DEFAULT_IMAGE } from "../constants";
+import { useAuth } from "../context/authContext";
+import api from "../lib/axios";
 const Card = ({
+  id,
   image,
   title,
   description,
   price,
-  rating
+  rating,
+  inWishlist: initialWishlistStatus
 }: {
+  id: number;
   image: string;
   title: string;
   description: string;
   price: string;
   rating: number;
+  inWishlist: boolean;
 }) => {
   const [imgSrc, setImgSrc] = useState(image);
+  const [inWishlist, setInWishlist] = useState(initialWishlistStatus);
+  const { isLoggedIn } = useAuth();
+
+  const handleWishlistToggle = async () => {
+    const token = localStorage.getItem("token");
+
+    try {
+      if (inWishlist) {
+        await api.delete(`/wishlist/${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      } else {
+        await api.post(`/wishlist/${id}`, null, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      }
+
+      setInWishlist(!inWishlist);
+    } catch (err) {
+      console.error("Failed to update wishlist", err);
+    }
+  };
 
   return (
-    <div className="relative sm:w-full h-auto flex flex-col rounded-md bg-white shadow-lg overflow-hidden border-1 border-transparent   hover:border-cyan-800 ">
+    <div className="relative sm:w-full h-auto flex flex-col rounded-md bg-white shadow-lg overflow-hidden border-1 border-transparent hover:border-cyan-800">
       {/* Image */}
       <div className="relative w-full h-36">
         <Image src={imgSrc} alt={title} layout="fill" className="object-cover" onError={() => setImgSrc(DEFAULT_IMAGE)} />
-        {/* Favorite Icon */}
-        <button className="absolute top-2 right-2 rounded-full bg-white/80 p-1 cursor-pointer hover:bg-red-500 hover:text-white transition">
-          <HeartIcon className="h-5 w-5  " />
-        </button>
+        {isLoggedIn && (
+          <button
+            onClick={handleWishlistToggle}
+            className={`absolute top-2 right-2 rounded-full p-1 transition ${
+              inWishlist ? "bg-red-500 text-white" : "bg-white/80 text-gray-800 hover:bg-red-500 hover:text-white"
+            }`}
+          >
+            {inWishlist ? <SolidHeartIcon className="h-5 w-5" /> : <OutlineHeartIcon className="h-5 w-5" />}
+          </button>
+        )}
       </div>
 
       {/* Content */}
@@ -52,7 +87,7 @@ const Card = ({
             </div>
           </div>
 
-          {/* Add to Cart Button */}
+          {/* Buttons */}
           <div className="flex space-x-2">
             <button
               className="flex-1 px-4 py-2 bg-cyan-900 text-white text-sm font-medium rounded-md hover:bg-cyan-800 transition cursor-pointer"
@@ -60,12 +95,14 @@ const Card = ({
             >
               Réserver
             </button>
-            <button
-              className="w-1/5 px-4 py-2 bg-orange-400 text-white text-sm font-medium rounded-md hover:bg-cyan-800 transition cursor-pointer"
-              onClick={() => alert(`Added "${title}" to cart!`)}
-            >
-              <ShoppingCart size={20} className="mr-2" /> {/* Display the icon */}
-            </button>
+            {isLoggedIn && (
+              <button
+                className="w-1/5 px-4 py-2 bg-orange-400 text-white text-sm font-medium rounded-md hover:bg-cyan-800 transition cursor-pointer"
+                onClick={() => alert(`Added "${title}" to cart!`)}
+              >
+                <ShoppingCart size={20} className="mx-auto" />
+              </button>
+            )}
           </div>
         </div>
       </div>

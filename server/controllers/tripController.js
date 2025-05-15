@@ -1,8 +1,7 @@
 const { Trip, Image, Comment, User } = require("../models");
 
 // 🆕 Create a new trip (for an agency)
-// 🆕 Create a new trip (for an agency)
-// 🆕 Create a new trip (for an agency)
+
 exports.createTrip = async (req, res) => {
   try {
     const { title, description, rating, image, thumbnail, price, date } = req.body;

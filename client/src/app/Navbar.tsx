@@ -24,20 +24,24 @@ function classNames(...classes: (string | false | undefined)[]): string {
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { logout, isLoggedIn } = useAuth(); // ✅ use global auth
+  const { logout, isLoggedIn, hasMounted } = useAuth();
+
+  if (!hasMounted) return null; // don't render until client mount
 
   return (
     <Disclosure as="nav" className="sticky top-0 z-50 bg-cyan-900 shadow-lg">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
         <div className="relative flex h-16 items-center justify-between">
+          {/* Mobile menu button */}
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
             <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-white focus:outline-hidden focus:ring-inset">
-              <span className="absolute -inset-0.5" />
               <span className="sr-only">Open main menu</span>
-              <Bars3Icon aria-hidden="true" className="block size-6 group-data-open:hidden" />
-              <XMarkIcon aria-hidden="true" className="hidden size-6 group-data-open:block" />
+              <Bars3Icon aria-hidden="true" className="block h-6 w-6 group-data-open:hidden" />
+              <XMarkIcon aria-hidden="true" className="hidden h-6 w-6 group-data-open:block" />
             </DisclosureButton>
           </div>
+
+          {/* Logo and desktop menu */}
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
             <div className="flex shrink-0 items-center space-x-2">
               <Image width={45} height={45} alt={COMPANY_NAME} src={LOGO_MAIN} className="w-auto" />
@@ -45,38 +49,37 @@ export default function Navbar() {
                 <span className="text-xl font-bold text-white">{COMPANY_NAME}</span>
               </Link>
             </div>
-          </div>
-          <div className="hidden sm:ml-6 sm:block">
-            <div className="flex space-x-4">
-              {navigation.map(item => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    aria-current={pathname === item.href ? "page" : undefined}
-                    className={classNames(
-                      pathname === item.href
-                        ? "text-white border-2 border-white-100"
-                        : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                      "flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium"
-                    )}
-                  >
-                    <Icon size={16} />
-                    {item.name}
-                  </Link>
-                );
-              })}
+            <div className="hidden sm:ml-6 sm:flex sm:space-x-4">
+              {navigation
+                .filter(item => item.name !== "Wishlist" || isLoggedIn) // hide Wishlist if not logged in
+                .map(item => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      aria-current={pathname === item.href ? "page" : undefined}
+                      className={classNames(
+                        pathname === item.href
+                          ? "text-white border-2 border-white"
+                          : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                        "flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium"
+                      )}
+                    >
+                      <Icon size={16} />
+                      {item.name}
+                    </Link>
+                  );
+                })}
             </div>
           </div>
 
-          {/* RIGHT SIDE (Login / Avatar) */}
+          {/* Right side (Login / Avatar) */}
           <div className="absolute inset-y-0 right-0 flex items-center gap-x-3 pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
             {isLoggedIn ? (
               <Menu as="div" className="relative ml-3">
                 <div>
                   <MenuButton className="relative flex rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden">
-                    <span className="absolute -inset-1.5" />
                     <span className="sr-only">Open user menu</span>
                     <Image
                       alt="User avatar"
@@ -89,9 +92,9 @@ export default function Navbar() {
                 </div>
                 <MenuItems className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
                   <MenuItem>
-                    <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                       Your Profile
-                    </a>
+                    </Link>
                   </MenuItem>
                   <MenuItem>
                     <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -101,7 +104,7 @@ export default function Navbar() {
                   <MenuItem>
                     <button
                       onClick={logout}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100"
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 focus:bg-gray-100"
                     >
                       Sign out
                     </button>
@@ -120,21 +123,21 @@ export default function Navbar() {
         </div>
       </div>
 
+      {/* Mobile menu panel */}
       <DisclosurePanel className="sm:hidden">
         <div className="space-y-1 px-2 pt-2 pb-3">
           {navigation.map(item => (
-            <DisclosureButton
+            <Disclosure.Button
               key={item.name}
-              as="a"
-              href={item.href}
-              aria-current={pathname === item.href ? "page" : undefined}
               className={classNames(
                 pathname === item.href ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white",
                 "block rounded-md px-3 py-2 text-base font-medium"
               )}
             >
-              {item.name}
-            </DisclosureButton>
+              <Link href={item.href} className="block w-full">
+                {item.name}
+              </Link>
+            </Disclosure.Button>
           ))}
         </div>
       </DisclosurePanel>

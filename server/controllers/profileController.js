@@ -21,3 +21,16 @@ exports.getProfile = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch profile" });
   }
 };
+
+// Get profile of authenticated user
+exports.getAuthenticatedProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const profile = await Profile.findOne({ where: { userId } });
+
+    if (!profile) return res.status(404).json({ error: "Profile not found" });
+    res.json(profile);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch profile" });
+  }
+};

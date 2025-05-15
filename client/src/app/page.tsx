@@ -4,8 +4,9 @@ import Card from "./cards/Card";
 import { ArrowUp, Search, RefreshCcw } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { BASE_SERVER_URL, NO_TRIP_IMAGE, PAGE_SIZE } from "./constants";
-
+import { NO_TRIP_IMAGE, PAGE_SIZE } from "./constants";
+import api from "./lib/axios";
+import { useAuth } from "./context/authContext"; // make sure this exists
 interface Trip {
   id: number;
   title: string;
@@ -30,7 +31,34 @@ const HomePage = () => {
   const [hasMore, setHasMore] = useState(true);
   const [searchQueryInput, setSearchQueryInput] = useState("");
   const [isLoading, setIsLoading] = useState(false); // New loading state
+  const { isLoggedIn } = useAuth(); // track login
+  const [wishlistIds, setWishlistIds] = useState<number[]>([]);
 
+  // Fetch wishlist only once
+  const fetchWishlist = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await api.get("/wishlist", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const wishlist: { id: number }[] = res.data;
+      const ids = wishlist.map(item => item.id);
+      setWishlistIds(ids);
+    } catch (err) {
+      console.error("Failed to fetch wishlist", err);
+    }
+  };
+
+  useEffect(
+    () => {
+      if (isLoggedIn) {
+        fetchWishlist();
+      } else {
+        setWishlistIds([]);
+      }
+    },
+    [isLoggedIn]
+  );
   const fetchData = async (pageNumber = 1) => {
     setIsLoading(true); // Set loading to true before fetching
     try {
@@ -43,8 +71,8 @@ const HomePage = () => {
       if (startDate) params.append("startDate", startDate);
       if (endDate) params.append("endDate", endDate);
 
-      const res = await fetch(`${BASE_SERVER_URL}/trips/with-pagination?${params.toString()}`);
-      const result = await res.json();
+      const res = await api.get("/trips/with-pagination", { params, withCredentials: false });
+      const result = res.data;
 
       if (result.data.length < PAGE_SIZE) {
         setHasMore(false);
@@ -158,11 +186,13 @@ const HomePage = () => {
               <Link href={`/trips/${trip.id}`} key={trip.id} className="flex cursor-pointer">
                 <Card
                   key={index}
+                  id={trip.id}
                   image={trip.image}
                   title={trip.title}
                   description={trip.description}
                   price={"DZD " + trip.price.toFixed(2)}
                   rating={trip.rating}
+                  inWishlist={wishlistIds.includes(trip.id)} // 👈 new prop
                 />
               </Link>
             ))}

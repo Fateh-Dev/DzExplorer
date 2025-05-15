@@ -5,6 +5,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/authContext";
 import { BASE_SERVER_URL } from "../constants";
+import api from "../lib/axios";
 
 export default function Register() {
   const router = useRouter();
@@ -29,7 +30,7 @@ export default function Register() {
     setError("");
     setLoading(true);
     try {
-      const res = await axios.post(BASE_SERVER_URL + "/auth/register", form);
+      const res = await api.post("/auth/register", form);
       const { user, token } = res.data;
 
       // Store token (optional: in localStorage)

@@ -4,6 +4,8 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { BASE_SERVER_URL } from "../constants"; // ✅ Import useAuth
 
+import api from "../lib/axios";
+
 import { useAuth } from "../context/authContext";
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -22,7 +24,7 @@ export default function Login() {
     setError("");
 
     try {
-      const res = await axios.post(BASE_SERVER_URL + "/auth/login", form);
+      const res = await api.post("/auth/login", form);
       const { token, user } = res.data;
 
       localStorage.setItem("token", token);
