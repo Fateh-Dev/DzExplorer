@@ -3,7 +3,7 @@ import { memo, useEffect, useState } from "react";
 import { HeartIcon as SolidHeartIcon, StarIcon } from "@heroicons/react/24/solid";
 import { HeartIcon as OutlineHeartIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
-import { ShoppingCart } from "lucide-react";
+import { Phone, ShoppingCart } from "lucide-react";
 import { DEFAULT_IMAGE } from "../constants";
 import { useAuth } from "../context/authContext";
 import api from "../lib/axios";
@@ -61,20 +61,38 @@ const Card = ({
       if (newWishlistStatus) {
         await api.post(`/wishlist/${id}`, null, {
           headers: { Authorization: `Bearer ${token}` },
-        });
-         toast.success(`Added "${title}" to your wishlist!`);
+        }); 
+         toast.success(`Added "${title}" to your wishlist!`, {
+  className: "bg-emerald-600 text-white px-4 py-3 rounded-md shadow-md border-l-12 border-green-600",
+  iconTheme: {
+    primary: "#ffffff",     // Icon color
+    secondary: "#065f46",   // Background behind icon (Tailwind emerald-800)
+  },
+});
       } else {
         await api.delete(`/wishlist/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
-        });
-         toast.success(`Removed "${title}" from your wishlist.`);
+        }); 
+          toast.success(`Removed "${title}" from your wishlist.`, {
+  className: "bg-emerald-600 text-white px-4 py-3 rounded-md shadow-md border-l-12 border-green-600",
+  iconTheme: {
+    primary: "#ffffff",     // Icon color
+    secondary: "#065f46",   // Background behind icon (Tailwind emerald-800)
+  },
+});
       }
 
       setInWishlist(newWishlistStatus);
       onWishlistToggle?.(id, newWishlistStatus); // Notify HomePage
     } catch (err) {
       console.error("Failed to update wishlist", err);
-  toast.error("Failed to update wishlist. Please try again.");
+toast.error("Failed to update wishlist. Please try again.", {
+  className: "bg-orange-300 text-white px-4 py-3 rounded-md shadow-md border-l-12 border-red-600",
+  iconTheme: {
+    primary: "#ffffff",
+    secondary: "#b91c1c", // Tailwind red-700
+  },
+});
     }
   };
 
@@ -117,21 +135,21 @@ const Card = ({
 
       {/* Content */}
       
-      <div className="flex flex-col justify-between flex-1 p-4 space-y-2">
+      <div className="flex flex-col justify-between flex-1 p-3 space-y-2">
       <Link href={`/trips/${id}`} className="cursor-pointer" prefetch={false} > 
         <div>
           <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
             {title}
           </h3>
           <p className="text-sm text-gray-600">
-            {description.length > 90
-              ? `${description.slice(0, 90)}...`
+            {description.length > 50
+              ? `${description.slice(0, 50)}...`
               : description}
           </p>
         </div>
 </Link>
         {/* Bottom section */}
-        <div className="mt-4 space-y-2">
+        <div className="mt-2 space-y-2">
           {/* Price & Rating */}
           <div className="flex items-center justify-between">
             <span className="text-md font-bold text-cyan-800">{price}</span>
@@ -147,19 +165,19 @@ const Card = ({
 
           {/* Buttons */}
           <div className="flex space-x-2">
-            <button
-              className="flex-1 px-4 py-2 bg-cyan-900 text-white text-sm font-medium rounded-md hover:bg-cyan-800 transition cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation();
-                // Add reservation logic here
-                alert(`Reserved "${title}"!`);
-              }}
-            >
-              Réserver
-            </button>
+           <button
+  className="flex items-center justify-center gap-2 flex-1 px-4 py-2 bg-cyan-900 text-white text-sm font-medium rounded-md hover:bg-cyan-800 transition cursor-pointer"
+  onClick={(e) => {
+    e.stopPropagation();
+    alert(`Reserved "${title}"!`);
+  }}
+>
+  <Phone className="w-4 h-4" />
+  Réserver
+</button>
             {isLoggedIn && (
               <button
-                className="w-1/5 px-4 py-2 bg-orange-400 text-white text-sm font-medium rounded-md hover:bg-cyan-800 transition cursor-pointer"
+                className="w-1/5 px-auto py-2 bg-orange-400 text-white text-sm font-medium rounded-md hover:bg-cyan-800 transition cursor-pointer"
                 onClick={() => alert(`Added "${title}" to cart!`)}
               >
                 <ShoppingCart size={20} className="mx-auto" />
