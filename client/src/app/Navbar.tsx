@@ -134,7 +134,7 @@ export default function Navbar() {
                 "block rounded-md px-3 py-2 text-base font-medium"
               )}
             >
-              <Link href={item.href} className="block w-full">
+              <Link href={item.href} className="block w-full" prefetch={false}>
                 {item.name}
               </Link>
             </Disclosure.Button>

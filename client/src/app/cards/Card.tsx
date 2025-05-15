@@ -82,7 +82,7 @@ const Card = ({
     <div className="relative sm:w-full h-auto flex flex-col rounded-md bg-white shadow-lg overflow-hidden border-1 border-transparent hover:border-cyan-800">
       {/* Image */}
       <div className="relative w-full h-36">
-      <Link href={`/trips/${id}`}className="  cursor-pointer"> 
+      <Link href={`/trips/${id}`}className="  cursor-pointer" prefetch={false} > 
       <Image
           src={image}
           alt={title}
@@ -116,7 +116,9 @@ const Card = ({
       </div>
 
       {/* Content */}
+      
       <div className="flex flex-col justify-between flex-1 p-4 space-y-2">
+      <Link href={`/trips/${id}`}className="  cursor-pointer" prefetch={false} > 
         <div>
           <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
             {title}
@@ -127,7 +129,7 @@ const Card = ({
               : description}
           </p>
         </div>
-
+</Link>
         {/* Bottom section */}
         <div className="mt-4 space-y-2">
           {/* Price & Rating */}
