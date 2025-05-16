@@ -17,10 +17,12 @@ export default function UserMenu({ isLoggedIn, onLogout, router }: UserMenuProps
   if (isLoggedIn) {
     return (
       <div className="flex items-center gap-4">
-        <button className="hidden sm:ml-6 sm:flex items-center space-x-2 border-2 rounded-md text-white border-white p-1 px-4 cursor-pointer transition-transform duration-150 hover:bg-cyan-800 active:scale-95">
-          <Plus className="w-5 h-5" />
-          <span>Create a trip</span>
-        </button>
+        <Link href="/create">
+          <button className="hidden sm:ml-6 sm:flex items-center space-x-2 border-2 rounded-md text-white border-white p-1 px-4 cursor-pointer transition-transform duration-150 hover:bg-cyan-800 active:scale-95">
+            <Plus className="w-5 h-5" />
+            <span>Create a trip</span>
+          </button>
+        </Link>
 
         <Menu as="div" className="relative ml-3">
           <MenuButton className="relative flex rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white">

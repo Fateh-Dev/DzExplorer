@@ -12,6 +12,7 @@ import TripDescription from "./TripDescription";
 import TripLocation from "./TripLocation";
 import TripComments from "./TripComments";
 import BackToTrips from "./BackToTrips";
+import { DEFAULT_IMAGE } from "@/app/constants";
 
 interface Props {
   trip: Trip;
@@ -46,7 +47,7 @@ const TripDetailsClient: React.FC<Props> = ({ trip }) => {
   };
   return (
     <div className="w-full">
-      <HeroImage imgSrc={imgSrc} setImgSrc={setImgSrc} trip={trip} />
+      <HeroImage imgSrc={imgSrc || DEFAULT_IMAGE} setImgSrc={setImgSrc} trip={trip} />
       <TripDescription trip={trip} isLoggedIn={isLoggedIn} />
       <TripLocation />
       <TripComments

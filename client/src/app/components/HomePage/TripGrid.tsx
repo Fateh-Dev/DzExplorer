@@ -1,6 +1,7 @@
 import React from "react";
 import Card from "../../cards/Card";
 import { Trip } from "@/app/trips/[id]/types";
+import { DEFAULT_IMAGE } from "@/app/constants";
 
 interface Props {
   data: Trip[];
@@ -14,7 +15,7 @@ const TripGrid: React.FC<Props> = ({ data, wishlistMap, handleWishlistToggle }) 
       <Card
         key={trip.id}
         id={trip.id}
-        image={trip.image}
+        image={trip.image || DEFAULT_IMAGE}
         title={trip.title}
         description={trip.description}
         price={"DZD " + trip.price.toFixed(2)}

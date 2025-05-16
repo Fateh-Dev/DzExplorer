@@ -79,7 +79,7 @@ export default function ContactModal({
               </a>
             </p>
             <p>
-              <span className="font-semibold">Domaine:</span> {contactAreaOfWork}
+              <span className="font-semibold">Wilaya d&apos;activité:</span> {contactAreaOfWork}
             </p>
           </div>
 

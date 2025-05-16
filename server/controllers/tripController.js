@@ -8,7 +8,7 @@ exports.createTrip = async (req, res) => {
     const userId = req.user.id; // assuming req.user is set via auth middleware
 
     // Ensure all required fields are provided
-    if (!title || !description || !rating || !image || !thumbnail || !price || !date) {
+    if (!title || !description || !price || !date) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
