@@ -24,7 +24,7 @@ exports.register = async (req, res) => {
       password: hashedPassword,
       role
     });
-    console.log("User data:", user);
+    // console.log("User data:", user);
     // Generate JWT
     const token = jwt.sign({ id: user.id, role: user.role }, secret, {
       expiresIn

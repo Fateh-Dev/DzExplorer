@@ -66,8 +66,25 @@ exports.getTripById = async (req, res) => {
   try {
     const trip = await Trip.findByPk(req.params.id, {
       include: [
-        { model: Image, as: "images" },
-        { model: Comment, as: "comments" },
+        { model: Image, as: "images", attributes: ["id", "url", "isMain"] },
+        {
+          model: Comment,
+          as: "comments",
+          attributes: ["id", "description", "rating", "createdAt"],
+          include: [
+            {
+              model: User,
+              attributes: ["username"]
+              // include: [
+              //   {
+              //     model: require("../models").Profile,
+              //     as: "profile",
+              //     attributes: ["name", "image"]
+              //   }
+              // ]
+            }
+          ]
+        },
         {
           model: User,
           attributes: ["id", "username", "email"],
@@ -126,8 +143,10 @@ exports.deleteTrip = async (req, res) => {
     res.status(500).json({ error: "Failed to delete trip" });
   }
 };
+
 // get trips with pagination
 const { Op } = require("sequelize");
+
 exports.getTripsWithPagination = async (req, res) => {
   const { page = 1, limit = 8, startDate, endDate, search } = req.query;
   const offset = (page - 1) * limit;
@@ -148,6 +167,7 @@ exports.getTripsWithPagination = async (req, res) => {
 
   const trips = await Trip.findAll({
     where,
+    attributes: ["id", "title", "price", "description", "image", "rating"], // Only return these fields
     offset: parseInt(offset),
     limit: parseInt(limit),
     order: [["date", "ASC"]]

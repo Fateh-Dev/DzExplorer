@@ -2,14 +2,18 @@ const { DataTypes } = require("sequelize");
 
 module.exports = sequelize => {
   const Comment = sequelize.define("Comment", {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
     description: { type: DataTypes.TEXT, allowNull: false },
     rating: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: { min: 1, max: 5 }
-    },
-    date: { type: DataTypes.DATEONLY, defaultValue: DataTypes.NOW },
-    time: { type: DataTypes.TIME, defaultValue: DataTypes.NOW }
+    }
+    // Removed date and time fields
   });
 
   Comment.associate = models => {

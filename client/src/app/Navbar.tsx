@@ -78,9 +78,9 @@ export default function Navbar() {
           <div className="absolute inset-y-0 right-0 flex items-center gap-x-3 pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
             {isLoggedIn ? (
               <div className="flex items-center gap-4">
-                <button className="rounded-md px-4 py-2 text-sm font-semibold border-2 border-white text-white shadow hover:bg-cyan-700 cursor-pointer">
+                {/* <button className="rounded-md px-4 py-2 text-sm font-semibold border-2 border-white text-white shadow hover:bg-cyan-700 cursor-pointer">
                   Create a Trip
-                </button>
+                </button> */}
                 <Menu as="div" className="relative ml-3">
                   <div>
                     <MenuButton className="relative flex rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden">
@@ -139,11 +139,22 @@ export default function Navbar() {
                 "block rounded-md px-3 py-2 text-base font-medium"
               )}
             >
-              <Link href={item.href} className="block w-full" prefetch={false}>
+              <Link href={item.href} className="block w-full">
                 {item.name}
               </Link>
             </Disclosure.Button>
           ))}
+          <Disclosure.Button
+            key="Create a Trip"
+            className={classNames(
+              pathname === "/create-trip" ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white",
+              "block rounded-md px-3 py-2 text-base font-medium"
+            )}
+          >
+            <Link href="/create-trip" className="block w-full">
+              Create a Trip
+            </Link>
+          </Disclosure.Button>
         </div>
       </DisclosurePanel>
     </Disclosure>

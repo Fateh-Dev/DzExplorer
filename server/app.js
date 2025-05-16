@@ -10,6 +10,7 @@ const app = express();
 
 const corsOptions = {
   origin: function(origin, callback) {
+    console.log("Origin:", origin);
     // allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true);
 
@@ -49,7 +50,7 @@ app.use((err, req, res, next) => {
 sequelize
   .sync({ alter: true })
   .then(() => {
-    app.listen(port, () => {
+    app.listen(port, "0.0.0.0", () => {
       console.log(`Server is running on port ${port}`);
       console.log(`Swagger docs available at http://localhost:${port}/api-docs`);
     });
