@@ -4,7 +4,7 @@ import { StarIcon } from "lucide-react";
 import { DEFAULT_IMAGE } from "../constants";
 import CardClient from "./CardClient";
 
-interface CardProps {
+export interface CardProps {
   id: number;
   image: string;
   title: string;
@@ -12,6 +12,7 @@ interface CardProps {
   price: string;
   rating: number;
   inWishlist: boolean;
+  onWishlistToggle: (id: number, inWishlist: boolean) => void;
 }
 
 const Card = ({ id, image, title, description, price, rating, inWishlist }: CardProps) => {
