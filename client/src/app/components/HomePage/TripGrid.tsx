@@ -1,5 +1,5 @@
 import React from "react";
-import Card from "../cards/Card";
+import Card from "../../cards/Card";
 
 interface Trip {
   id: number;
@@ -17,7 +17,7 @@ interface Props {
 }
 
 const TripGrid: React.FC<Props> = ({ data, wishlistMap, handleWishlistToggle }) => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 cursor-pointer">
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 cursor-pointer">
     {data.map(trip => (
       <Card
         key={trip.id}

@@ -1,7 +1,7 @@
 import React from "react";
 import api from "./lib/axios";
 import { PAGE_SIZE } from "./constants";
-import HomePageClient from "./components/HomePageClient";
+import HomePageClient from "./components/HomePage/HomePageClient";
 
 interface Trip {
   id: number;

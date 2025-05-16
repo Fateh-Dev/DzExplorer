@@ -31,7 +31,7 @@ export default function WishlistButton({ inWishlist, onToggle }: WishlistButtonP
     <div className="relative z-20">
       {explode && (
         <div className="absolute inset-0 z-10 flex items-center justify-center animate-bomb">
-          <div className="h-10 w-10 rounded-full bg-red-500 opacity-70 blur-md scale-100" />
+          <div className="h-10 w-10 rounded-full bg-red-500 opacity-70 blur-lg scale-100" />
         </div>
       )}
 

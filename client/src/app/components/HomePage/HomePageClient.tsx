@@ -6,9 +6,9 @@ import GoToTopButton from "./GoToTopButton";
 import TripGrid from "./TripGrid";
 import { Loading, NoTrips } from "./Loading";
 import SearchBar from "./SearchBar";
-import { PAGE_SIZE } from "../constants";
-import { useAuth } from "../context/authContext";
-import api from "../lib/axios";
+import { PAGE_SIZE } from "../../constants";
+import { useAuth } from "../../context/authContext";
+import api from "../../lib/axios";
 
 interface Trip {
   id: number;

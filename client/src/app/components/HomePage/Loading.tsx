@@ -1,5 +1,5 @@
 import React from "react";
-import { NO_TRIP_IMAGE } from "../constants";
+import { NO_TRIP_IMAGE } from "../../constants";
 import Image from "next/image";
 export const Loading = () => (
   <div className="flex flex-col items-center justify-center py-12 text-center text-gray-500">

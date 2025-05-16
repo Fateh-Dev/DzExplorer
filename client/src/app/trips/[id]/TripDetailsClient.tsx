@@ -44,7 +44,6 @@ const TripDetailsClient: React.FC<Props> = ({ trip }) => {
       setSubmitting(false);
     }
   };
-
   return (
     <div className="w-full">
       <HeroImage imgSrc={imgSrc} setImgSrc={setImgSrc} trip={trip} />
