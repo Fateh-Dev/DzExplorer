@@ -10,19 +10,7 @@ import { PAGE_SIZE } from "../../constants";
 import { useAuth } from "../../context/authContext";
 import api from "../../lib/axios";
 
-interface Trip {
-  id: number;
-  title: string;
-  description: string;
-  rating: number;
-  image: string;
-  date: string;
-  views: number;
-  thumbnail: string;
-  price: number;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { Trip } from "../../trips/[id]/types";
 
 interface Props {
   initialTrips: Trip[];
@@ -103,7 +91,11 @@ const HomePageClient: React.FC<Props> = ({ initialTrips }) => {
         if (pageNumber === 1) {
           setData(result.data);
         } else {
-          setData(prev => [...prev, ...result.data]);
+          setData(prev => {
+            const existingIds = new Set(prev.map(trip => trip.id));
+            const newTrips: Trip[] = result.data.filter((trip: Trip) => !existingIds.has(trip.id));
+            return [...prev, ...newTrips];
+          });
         }
       } catch (error) {
         console.error("Error fetching data:", error);

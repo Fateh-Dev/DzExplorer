@@ -6,17 +6,22 @@ import { useAuth } from "../context/authContext";
 import api from "../lib/axios";
 import WishlistButton from "./WishlistButton";
 import ReserveButton from "./ReserveButton";
+import ContactModal from "./ContactModal";
+import { User } from "../trips/[id]/types";
+import { NO_AVATAR_IMAGE } from "../constants";
 
 interface CardClientProps {
   id: number;
   title: string;
   inWishlist: boolean;
-  mode: "wishlist" | "reserve"; // 🔁 Nouvelle prop pour séparer les rôles
+  mode: "wishlist" | "reserve";
+  contact?: User;
 }
 
-const CardClient = ({ id, title, inWishlist: initialWishlist, mode }: CardClientProps) => {
+const CardClient = ({ id, title, inWishlist: initialWishlist, mode, contact }: CardClientProps) => {
   const [inWishlist, setInWishlist] = useState(initialWishlist);
   const { isLoggedIn } = useAuth();
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(
     () => {
@@ -60,7 +65,34 @@ const CardClient = ({ id, title, inWishlist: initialWishlist, mode }: CardClient
   }
 
   if (mode === "reserve") {
-    return <ReserveButton onReserve={() => console.log(`Réservé pour "${title}"`)} title={title} />;
+    return (
+      <>
+        <ReserveButton
+          onReserve={() => {
+            if (!contact) {
+              toast.error("Contact information not available.");
+              return;
+            }
+            setModalOpen(true);
+          }}
+          title={title}
+          display="Réserver"
+        />
+
+        {contact && (
+          <ContactModal
+            isOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+            contactName={contact?.profile?.name || "Unknown"}
+            contactPhone={contact?.profile?.contactNumber1 || "Unknown"}
+            contactPhone1={contact?.profile?.contactNumber2 || "Unknown"}
+            contactEmail={contact?.email || "Unknown"}
+            image={contact?.profile?.image || NO_AVATAR_IMAGE}
+            contactAreaOfWork={contact?.profile?.areaOfWork || "Unknown"}
+          /> 
+        )}
+      </>
+    );
   }
 
   return null;

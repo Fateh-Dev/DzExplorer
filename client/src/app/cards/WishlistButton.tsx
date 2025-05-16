@@ -43,9 +43,9 @@ export default function WishlistButton({ inWishlist, onToggle }: WishlistButtonP
         }`}
       >
         {inWishlist ? (
-          <SolidHeartIcon className="h-6 w-6 transition-transform duration-200 group-hover:scale-110" />
+          <SolidHeartIcon className="h-5 w-5 transition-transform duration-200  " />
         ) : (
-          <OutlineHeartIcon className="h-6 w-6" />
+          <OutlineHeartIcon className="h-5 w-5" />
         )}
       </button>
 

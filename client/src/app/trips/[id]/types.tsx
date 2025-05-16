@@ -4,10 +4,15 @@ export interface TripImage {
 
 export interface UserProfile {
   contactNumber1?: string;
+  areaOfWork?: string;
+  contactNumber2?: string;
+  name?: string;
+  image?: string;
 }
 
 export interface User {
   username?: string;
+  email?: string;
   profile?: UserProfile;
 }
 
@@ -20,7 +25,7 @@ export interface TripComment {
 }
 
 export interface Trip {
-  id: string;
+  id: number;
   title: string;
   description: string;
   rating: number;

@@ -3,19 +3,7 @@ import api from "./lib/axios";
 import { PAGE_SIZE } from "./constants";
 import HomePageClient from "./components/HomePage/HomePageClient";
 
-interface Trip {
-  id: number;
-  title: string;
-  description: string;
-  rating: number;
-  image: string;
-  date: string;
-  views: number;
-  thumbnail: string;
-  price: number;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { Trip } from "./trips/[id]/types";
 
 async function fetchTrips() {
   try {

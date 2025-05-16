@@ -3,6 +3,7 @@ import Link from "next/link";
 import { StarIcon } from "lucide-react";
 import { DEFAULT_IMAGE } from "../constants";
 import CardClient from "./CardClient";
+import { User } from "../trips/[id]/types";
 
 export interface CardProps {
   id: number;
@@ -11,11 +12,12 @@ export interface CardProps {
   description: string;
   price: string;
   rating: number;
+  User: User | undefined;
   inWishlist: boolean;
   onWishlistToggle: (id: number, inWishlist: boolean) => void;
 }
 
-const Card = ({ id, image, title, description, price, rating, inWishlist }: CardProps) => {
+const Card = ({ id, image, title, description, price, rating, inWishlist, User }: CardProps) => {
   return (
     <div className="relative group sm:w-full h-auto flex flex-col rounded-md bg-white shadow-lg overflow-hidden border-1 border-transparent hover:border-cyan-800">
       {/* Image + Wishlist */}
@@ -64,7 +66,7 @@ const Card = ({ id, image, title, description, price, rating, inWishlist }: Card
 
         {/* Hover Overlay Reserve Button */}
         <div className="absolute bottom-3 left-3 right-3 z-10 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-in-out">
-          <CardClient id={id} title={title} inWishlist={inWishlist} mode="reserve" />
+          <CardClient id={id} title={title} inWishlist={inWishlist} mode="reserve" contact={User} />
         </div>
       </div>
     </div>

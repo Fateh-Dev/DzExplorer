@@ -148,30 +148,51 @@ exports.deleteTrip = async (req, res) => {
 const { Op } = require("sequelize");
 
 exports.getTripsWithPagination = async (req, res) => {
-  const { page = 1, limit = 8, startDate, endDate, search } = req.query;
-  const offset = (page - 1) * limit;
+  try {
+    const { page = 1, limit = 8, startDate, endDate, search } = req.query;
+    const pageNumber = parseInt(page) || 1;
+    const pageLimit = parseInt(limit) || 8;
+    const offset = (pageNumber - 1) * pageLimit;
 
-  const where = {};
+    const where = {};
 
-  // Search filter
-  if (search) {
-    where[Op.or] = [{ title: { [Op.iLike]: `%${search}%` } }, { description: { [Op.iLike]: `%${search}%` } }];
+    // Search filter
+    if (search) {
+      where[Op.or] = [{ title: { [Op.iLike]: `%${search}%` } }, { description: { [Op.iLike]: `%${search}%` } }];
+    }
+
+    // Date filter
+    if (startDate || endDate) {
+      where.date = {};
+      if (startDate) where.date[Op.gte] = new Date(startDate);
+      if (endDate) where.date[Op.lte] = new Date(endDate);
+    }
+
+    const trips = await Trip.findAll({
+      where,
+      attributes: ["id", "title", "price", "description", "image", "rating"],
+      include: [
+        {
+          model: require("../models").User,
+          as: "User",
+          attributes: ["id", "username", "email"],
+          include: [
+            {
+              model: require("../models").Profile,
+              as: "profile",
+              attributes: ["name", "contactNumber1", "contactNumber2", "areaOfWork", "image"]
+            }
+          ]
+        }
+      ],
+      offset,
+      limit: pageLimit,
+      order: [["date", "ASC"]]
+    });
+
+    res.json({ data: trips });
+  } catch (error) {
+    console.error("Error fetching trips:", error);
+    res.status(500).json({ error: "Failed to fetch trips." });
   }
-
-  // Date filter
-  if (startDate || endDate) {
-    where.date = {};
-    if (startDate) where.date[Op.gte] = startDate;
-    if (endDate) where.date[Op.lte] = endDate;
-  }
-
-  const trips = await Trip.findAll({
-    where,
-    attributes: ["id", "title", "price", "description", "image", "rating"], // Only return these fields
-    offset: parseInt(offset),
-    limit: parseInt(limit),
-    order: [["date", "ASC"]]
-  });
-
-  res.json({ data: trips });
 };

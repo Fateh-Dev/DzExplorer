@@ -1,14 +1,6 @@
 import React from "react";
 import Card from "../../cards/Card";
-
-interface Trip {
-  id: number;
-  title: string;
-  description: string;
-  rating: number;
-  image: string;
-  price: number;
-}
+import { Trip } from "@/app/trips/[id]/types";
 
 interface Props {
   data: Trip[];
@@ -27,6 +19,7 @@ const TripGrid: React.FC<Props> = ({ data, wishlistMap, handleWishlistToggle }) 
         description={trip.description}
         price={"DZD " + trip.price.toFixed(2)}
         rating={trip.rating}
+        User={trip.User}
         inWishlist={wishlistMap.get(trip.id) || false}
         onWishlistToggle={handleWishlistToggle}
       />
