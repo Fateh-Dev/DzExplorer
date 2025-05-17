@@ -1,9 +1,7 @@
 "use client";
-
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "react-photo-view/dist/react-photo-view.css";
 import toast from "react-hot-toast";
-
 import api from "@/app/lib/axios";
 import { useAuth } from "@/app/context/authContext";
 import { Trip } from "./types";
@@ -45,6 +43,20 @@ const TripDetailsClient: React.FC<Props> = ({ trip }) => {
       setSubmitting(false);
     }
   };
+  useEffect(
+    () => {
+      const key = `viewed-trip-${trip.id}`;
+      const lastViewed = localStorage.getItem(key);
+      const now = Date.now();
+
+      if (!lastViewed || now - Number(lastViewed) > 60 * 60 * 1000) {
+        api.post(`/trips/view/${trip.id}`);
+        localStorage.setItem(key, now.toString());
+      }
+    },
+    [trip.id]
+  );
+
   return (
     <div className="w-full">
       <HeroImage imgSrc={imgSrc || DEFAULT_IMAGE} setImgSrc={setImgSrc} trip={trip} />

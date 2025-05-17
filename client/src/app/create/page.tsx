@@ -5,16 +5,13 @@ import axios from "axios";
 import api from "../lib/axios";
 import toast from "react-hot-toast";
 
-// const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/YOUR_CLOUDINARY_CLOUD_NAME/upload`;
-// const UPLOAD_PRESET = "YOUR_UPLOAD_PRESET";
-
 interface TripFormData {
   title: string;
   description: string;
-  rating: number;
   image: string;
   thumbnail: string;
   price: number;
+  rating: number;
   date: string;
 }
 
@@ -22,22 +19,22 @@ export default function CreateTripForm() {
   const [form, setForm] = useState<TripFormData>({
     title: "",
     description: "",
-    rating: 0,
     image: "",
     thumbnail: "",
+    rating:0,
     price: 0,
     date: "",
   });
- 
-  const [error, setError] = useState<string | null>(null);
- 
- 
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const [error, setError] = useState<string | null>(null);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setForm(prev => ({
+    setForm((prev) => ({
       ...prev,
-      [name]: name === "rating" || name === "price" ? Number(value) : value,
+      [name]: name === "price" ? Number(value) : value,
     }));
   };
 
@@ -45,27 +42,20 @@ export default function CreateTripForm() {
     e.preventDefault();
     setError(null);
 
-    // Basic validation
-    if (
-      !form.title ||
-      !form.description || 
-      !form.price ||
-      !form.date
-    ) {
+    if (!form.title || !form.description || !form.price || !form.date) {
       setError("Please fill in all fields.");
       return;
     }
 
     try {
-      const response = await  api.post("/trips", form);
-     toast.success("Trip created successfully!");
-      console.log("Trip created:", response.data);
+      await api.post("/trips", form);
+      toast.success("Trip created successfully!");
       setForm({
         title: "",
         description: "",
-        rating: 0,
         image: "",
         thumbnail: "",
+        rating: 0,
         price: 0,
         date: "",
       });
@@ -81,71 +71,80 @@ export default function CreateTripForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-lg mx-auto p-6 bg-white rounded shadow space-y-4"
+     className="max-w-xl mx-auto p-8 rounded-xl shadow-lg bg-white
+             sm:p-10 space-y-6"
     >
-      <h1 className="text-2xl font-semibold mb-4">Create a New Trip</h1>
+      <h1 className="text-3xl font-extrabold text-cyan-900 mb-6 text-center drop-shadow-md">
+        Create a New Trip
+      </h1>
 
       {error && (
-        <div className="text-red-600 bg-red-100 p-2 rounded">{error}</div>
+        <div className="bg-red-100 text-red-700 p-3 rounded-md border border-red-300 font-semibold">
+          {error}
+        </div>
       )}
 
-      <label className="block">
-        Title
-        <input
-          type="text"
-          name="title"
-          value={form.title}
-          onChange={handleChange}
-          className="w-full mt-1 border rounded px-3 py-2"
-          required
-        />
-      </label>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <label className="flex flex-col sm:col-span-2">
+          <span className="mb-1 font-semibold text-cyan-900">Title</span>
+          <input
+            type="text"
+            name="title"
+            value={form.title}
+            onChange={handleChange}
+            placeholder="Amazing Trip to Sahara"
+            className="rounded-md border px-4 py-2 transition "
+            required
+          />
+        </label>
 
-      <label className="block">
-        Description
-        <textarea
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-          rows={4}
-          className="w-full mt-1 border rounded px-3 py-2"
-          required
-        />
-      </label> 
+        <label className="flex flex-col sm:col-span-2">
+          <span className="mb-1 font-semibold text-cyan-900">Description</span>
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            rows={5}
+            placeholder="Write a detailed description about your trip..."
+            className="rounded-md border px-4 py-2 transition "
+            required
+          />
+        </label>
 
-      <label className="block">
-        Price (DZD)
-        <input
-          type="number"
-          name="price"
-          value={form.price}
-          min={0}
-          step="0.01"
-          onChange={handleChange}
-          className="w-full mt-1 border rounded px-3 py-2"
-          required
-        />
-      </label>
+        <label className="flex flex-col">
+          <span className="mb-1 font-semibold text-cyan-900">Date</span>
+          <input
+            type="date"
+            name="date"
+            value={form.date}
+            onChange={handleChange}
+            className="rounded-md border px-4 py-2 transition "
+            required
+          />
+        </label>
 
-      <label className="block">
-        Date
-        <input
-          type="date"
-          name="date"
-          value={form.date}
-          onChange={handleChange}
-          className="w-full mt-1 border rounded px-3 py-2"
-          required
-        />
-      </label>
- 
-    
+        <label className="flex flex-col">
+          <span className="mb-1 font-semibold text-cyan-900">Price (DZD)</span>
+          <input
+            type="number"
+            name="price"
+            value={form.price}
+            min={0}
+            step="0.01"
+            onChange={handleChange}
+            placeholder="1234.56"
+            className="rounded-md border px-4 py-2 transition "
+            required
+          />
+        </label>
+      </div>
 
       <button
-        type="submit" 
-        className="w-full bg-cyan-900 text-white py-2 rounded hover:bg-cyan-800 transition"
+        type="submit"
+        className="w-full py-3 bg-cyan-700 text-white font-bold rounded-xl
+                   hover:bg-cyan-800 active:bg-cyan-900 "
       >
-        ssssss
+        Create Trip
       </button>
     </form>
   );

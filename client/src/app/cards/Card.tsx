@@ -55,11 +55,12 @@ const Card = ({ id, image, title, description, price, rating, inWishlist, User }
         <div className="flex items-center justify-between z-0">
           <span className="text-md font-bold text-cyan-800">{price}</span>
           <div className="flex items-center space-x-1">
-            {Array.from({ length: rating }).map((_, idx) => (
-              <StarIcon key={idx} className="w-4 h-4 text-yellow-400" />
-            ))}
-            {Array.from({ length: 5 - rating }).map((_, idx) => (
-              <StarIcon key={idx} className="w-4 h-4 text-gray-300" />
+            {[1, 2, 3, 4, 5].map(star => (
+              <StarIcon
+                key={star}
+                className={`w-4 h-4 sm:w-4 sm:h-4 ${star <= rating ? "text-yellow-400" : "text-gray-300"}`}
+                fill={star <= rating ? "currentColor" : "none"}
+              />
             ))}
           </div>
         </div>

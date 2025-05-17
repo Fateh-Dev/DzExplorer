@@ -60,7 +60,21 @@ exports.getAllTrips = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch trips" });
   }
 };
+exports.incrementViewCount = async (req, res) => {
+  try {
+    const { id } = req.params;
 
+    const trip = await Trip.findByPk(id);
+    if (!trip) return res.status(404).json({ error: "Trip not found" });
+
+    await trip.increment("views");
+
+    res.status(200).json({ message: "View count incremented" });
+  } catch (error) {
+    console.error("Increment View Error:", error);
+    res.status(500).json({ error: "Failed to increment view count" });
+  }
+};
 // 🔍 Get a single trip by ID
 exports.getTripById = async (req, res) => {
   try {

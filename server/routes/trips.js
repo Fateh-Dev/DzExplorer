@@ -7,7 +7,7 @@ const { authenticateToken, authorizeRole } = require("../middleware/auth");
 router.get("/", tripController.getAllTrips);
 router.get("/details/:id", tripController.getTripById);
 router.get("/with-pagination", tripController.getTripsWithPagination);
-
+router.post("/view/:id", tripController.incrementViewCount);
 // Protected routes
 /**
  * @swagger

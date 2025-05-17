@@ -25,7 +25,7 @@ export default function ReserverButton({ trip }: Props) {
 
   return (
     <div className="flex flex-col sm:flex-row sm:justify-end sm:space-x-2 gap-2 mt-6">
-      <div className="w-md">
+     <div className="max-w-md w-full">
         <ReserveButton
           onReserve={handleReserve}
           title={trip.title}
