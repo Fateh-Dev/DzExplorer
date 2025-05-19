@@ -4,6 +4,11 @@ module.exports = sequelize => {
   const Trip = sequelize.define("Trip", {
     title: { type: DataTypes.STRING, allowNull: false },
     description: { type: DataTypes.TEXT, allowNull: false },
+    durationHours: { type: DataTypes.FLOAT, allowNull: true },
+    language: { type: DataTypes.STRING, allowNull: true },
+    meetingPoint: { type: DataTypes.STRING, allowNull: true },
+    cancellationPolicy: { type: DataTypes.TEXT, allowNull: true },
+
     rating: { type: DataTypes.FLOAT, allowNull: false },
     image: { type: DataTypes.STRING, allowNull: false }, // main image
     thumbnail: { type: DataTypes.STRING, allowNull: false },
@@ -16,6 +21,9 @@ module.exports = sequelize => {
     Trip.belongsTo(models.User, { foreignKey: "userId" }); // agency
     Trip.hasMany(models.Image, { foreignKey: "tripId", as: "images" });
     Trip.hasMany(models.Comment, { foreignKey: "tripId", as: "comments" });
+    Trip.hasMany(models.TripInclusion, { foreignKey: "tripId", as: "inclusions" });
+    Trip.hasMany(models.TripExclusion, { foreignKey: "tripId", as: "exclusions" });
+    Trip.hasMany(models.TripReview, { foreignKey: "tripId", as: "reviews" });
     // Wishlist relationship
     Trip.belongsToMany(models.User, {
       through: models.Wishlist,
