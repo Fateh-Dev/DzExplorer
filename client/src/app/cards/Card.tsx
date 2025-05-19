@@ -57,7 +57,9 @@ const Card = ({ id, image, title, description, price, rating, inWishlist, User, 
         <Link href={`/trips/${id}`} className="cursor-pointer">
           <div>
             <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">{title}</h3>
-            <p className="text-sm text-gray-600">{description.length > 50 ? `${description.slice(0, 50)}...` : description}</p>
+            <p className="text-sm text-gray-600">
+              {description && description.length > 50 ? `${description.slice(0, 50)}...` : description}
+            </p>
           </div>
         </Link>
 

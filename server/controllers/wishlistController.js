@@ -26,7 +26,7 @@ exports.removeFromWishlist = async (req, res) => {
 exports.getWishlist = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id, {
-      include: [{ model: Trip, as: "wishlist", attributes: ["id"] }]
+      include: [{ model: Trip, as: "wishlist", attributes: ["id", "title", "description", "rating", "date", "views"] }]
     });
     res.json(user.wishlist);
   } catch (err) {
