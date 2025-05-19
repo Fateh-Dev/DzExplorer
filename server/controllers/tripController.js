@@ -184,7 +184,7 @@ exports.getTripsWithPagination = async (req, res) => {
 
     const trips = await Trip.findAll({
       where,
-      attributes: ["id", "title", "price", "description", "image", "rating"],
+      attributes: ["id", "title", "price", "description", "image", "rating", "views", "date"],
       include: [
         {
           model: require("../models").User,

@@ -18,11 +18,13 @@ const TripGrid: React.FC<Props> = ({ data, wishlistMap, handleWishlistToggle }) 
         image={trip.image || DEFAULT_IMAGE}
         title={trip.title}
         description={trip.description}
-        price={"DZD " + trip.price.toFixed(2)}
+        price={trip.price.toFixed(2) + " DA"}
         rating={trip.rating}
         User={trip.User}
         inWishlist={wishlistMap.get(trip.id) || false}
         onWishlistToggle={handleWishlistToggle}
+        date={trip.date}
+        views={trip.views}
       />
     ))}
   </div>

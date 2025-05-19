@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { StarIcon } from "lucide-react";
+import { EyeIcon, StarIcon } from "lucide-react";
 import { DEFAULT_IMAGE } from "../constants";
 import CardClient from "./CardClient";
 import { User } from "../trips/[id]/types";
@@ -15,11 +15,15 @@ export interface CardProps {
   User: User | undefined;
   inWishlist: boolean;
   onWishlistToggle: (id: number, inWishlist: boolean) => void;
+
+  date: string; // ✅ nouvelle prop
+  views: number; // ✅ nouvelle prop
+  // reviewsCount: number; // ✅ nouvelle prop
 }
 
-const Card = ({ id, image, title, description, price, rating, inWishlist, User }: CardProps) => {
+const Card = ({ id, image, title, description, price, rating, inWishlist, User, date, views }: CardProps) => {
   return (
-    <div className="relative group sm:w-full h-auto flex flex-col rounded-md bg-white shadow-lg overflow-hidden border-1 border-transparent hover:border-cyan-800">
+    <div className="relative  pb-2 group sm:w-full h-auto flex flex-col rounded-md bg-white shadow-lg overflow-hidden border-1 border-transparent hover:border-cyan-800">
       {/* Image + Wishlist */}
       <div className="relative w-full h-36">
         <Link href={`/trips/${id}`} className="cursor-pointer">
@@ -37,13 +41,19 @@ const Card = ({ id, image, title, description, price, rating, inWishlist, User }
             quality={80}
           />
         </Link>
+
+        {/* ✅ Infos sur l'image */}
+        <div className="flex items-center absolute bottom-[-10px] left-1 bg-black/80 text-white text-xs px-2 py-1 rounded-sm">
+          <EyeIcon size={16} className="mr-2" /> {views}
+        </div>
+        <div className="absolute bottom-[-10px] right-1 bg-black/80 text-white text-xs px-2 py-1 rounded-sm">📅 {date}</div>
         <div className="absolute top-2 right-2 z-10">
           <CardClient id={id} title={title} inWishlist={inWishlist} mode="wishlist" />
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex flex-col justify-between flex-1 p-3 space-y-2 relative">
+      <div className="top-2 flex flex-col justify-between flex-1 p-3 space-y-2 relative">
         <Link href={`/trips/${id}`} className="cursor-pointer">
           <div>
             <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">{title}</h3>

@@ -2,8 +2,8 @@ require("dotenv").config();
 const sequelize = require("./config/database");
 const express = require("express");
 const cors = require("cors");
-const swaggerUi = require("swagger-ui-express");
-const swaggerSpec = require("./config/swagger");
+// const swaggerUi = require("swagger-ui-express");
+// const swaggerSpec = require("./config/swagger");
 
 const allowedOrigins = ["http://192.168.100.19:3000", "http://localhost:3000"];
 const app = express();
@@ -32,7 +32,7 @@ app.use(cors(corsOptions));
 const port = process.env.PORT || 5000;
 
 // Swagger route
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Middleware
 app.use(express.json());
@@ -52,7 +52,7 @@ sequelize
   .then(() => {
     app.listen(port, "0.0.0.0", () => {
       console.log(`Server is running on port ${port}`);
-      console.log(`Swagger docs available at http://localhost:${port}/api-docs`);
+      // console.log(`Swagger docs available at http://localhost:${port}/api-docs`);
     });
   })
   .catch(err => {
