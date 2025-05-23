@@ -25,8 +25,7 @@ export default function Login() {
 
     try {
       const res = await api.post("/auth/login", form);
-      const { token, user } = res.data;
-
+      const { token, user } = res.data.data; // ✅ Destructure token and user from response
       localStorage.setItem("token", token);
       login(user); // ✅ Update global state
       router.push("/"); // ✅ Redirect

@@ -1,10 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
-authMiddleware = require("../middleware/jwtMiddleware"); // Assuming you have a JWT middleware for authentication
+const { authenticateToken, authorizeRole } = require("../middleware/auth");
 
-router.get("/", authMiddleware, userController.getAllUsers);
-router.get("/:id", authMiddleware, userController.getUserById);
-router.delete("/:id", authMiddleware, userController.deleteUser);
+// Admin-only routes for user management
+router.get("/", authenticateToken, authorizeRole(["Admin"]), userController.getAllUsers);
+
+router.get("/:id", authenticateToken, authorizeRole(["Admin"]), userController.getUserById);
+
+router.delete("/:id", authenticateToken, authorizeRole(["Admin"]), userController.deleteUser);
 
 module.exports = router;
