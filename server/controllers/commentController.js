@@ -4,15 +4,19 @@ const { Comment, User, Trip } = require("../models");
 exports.addComment = async (req, res) => {
   try {
     const { tripId } = req.params;
-    const { description } = req.body;
+    const { description, rating } = req.body;
     const userId = req.user.id;
 
-    // Validate input
+    // Input validation
     if (!description || description.trim() === "") {
       return res.status(400).json({ error: "Comment description is required" });
     }
 
-    // Verify trip exists
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({ error: "Rating must be between 1 and 5" });
+    }
+
+    // Check if trip exists
     const trip = await Trip.findByPk(tripId);
     if (!trip) {
       return res.status(404).json({ error: "Trip not found" });
@@ -21,6 +25,7 @@ exports.addComment = async (req, res) => {
     // Create comment
     const comment = await Comment.create({
       description: description.trim(),
+      rating,
       userId,
       tripId
     });

@@ -11,7 +11,6 @@ interface TripFormData {
   image: string;
   thumbnail: string;
   price: number;
-  rating: number;
   date: string;
 }
 
@@ -21,7 +20,6 @@ export default function CreateTripForm() {
     description: "",
     image: "",
     thumbnail: "",
-    rating:0,
     price: 0,
     date: "",
   });
@@ -47,6 +45,13 @@ export default function CreateTripForm() {
       return;
     }
 
+    // Additional client-side validation
+    if (form.price <= 0) {
+      setError("Price must be greater than 0.");
+      return;
+    }
+
+   
     try {
       await api.post("/trips", form);
       toast.success("Trip created successfully!");
@@ -55,7 +60,6 @@ export default function CreateTripForm() {
         description: "",
         image: "",
         thumbnail: "",
-        rating: 0,
         price: 0,
         date: "",
       });
@@ -71,7 +75,7 @@ export default function CreateTripForm() {
   return (
     <form
       onSubmit={handleSubmit}
-     className="max-w-xl mx-auto p-8 rounded-xl shadow-lg bg-white
+      className="max-w-xl mx-auto p-8 rounded-xl shadow-lg bg-white
              sm:p-10 space-y-6"
     >
       <h1 className="text-3xl font-extrabold text-cyan-900 mb-6 text-center drop-shadow-md">
@@ -129,12 +133,36 @@ export default function CreateTripForm() {
             type="number"
             name="price"
             value={form.price}
-            min={0}
+            min={0.01}
             step="0.01"
             onChange={handleChange}
             placeholder="1234.56"
             className="rounded-md border px-4 py-2 transition "
             required
+          />
+        </label>
+
+        <label className="flex flex-col">
+          <span className="mb-1 font-semibold text-cyan-900">Image URL (Optional)</span>
+          <input
+            type="url"
+            name="image"
+            value={form.image}
+            onChange={handleChange}
+            placeholder="https://example.com/image.jpg"
+            className="rounded-md border px-4 py-2 transition "
+          />
+        </label>
+
+        <label className="flex flex-col">
+          <span className="mb-1 font-semibold text-cyan-900">Thumbnail URL (Optional)</span>
+          <input
+            type="url"
+            name="thumbnail"
+            value={form.thumbnail}
+            onChange={handleChange}
+            placeholder="https://example.com/thumbnail.jpg"
+            className="rounded-md border px-4 py-2 transition "
           />
         </label>
       </div>

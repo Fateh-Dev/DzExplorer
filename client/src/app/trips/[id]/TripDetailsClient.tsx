@@ -28,6 +28,7 @@ const TripDetailsClient: React.FC<Props> = ({ trip }) => {
     if (!newComment || newRating < 1 || newRating > 5) return;
     try {
       setSubmitting(true);
+      console.log("Submitting comment:", newRating, newComment);
       await api.post(`/comments/${trip.id}`, {
         description: newComment,
         rating: newRating

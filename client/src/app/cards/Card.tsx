@@ -1,9 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import { EyeIcon, StarIcon } from "lucide-react";
 import { DEFAULT_IMAGE } from "../constants";
 import CardClient from "./CardClient";
 import { User } from "../trips/[id]/types";
+import SafeImage from "../components/safeImage";
 
 export interface CardProps {
   id: number;
@@ -27,17 +27,15 @@ const Card = ({ id, image, title, description, price, rating, inWishlist, User, 
       {/* Image + Wishlist */}
       <div className="relative w-full h-36">
         <Link href={`/trips/${id}`} className="cursor-pointer">
-          <Image
+          <SafeImage
             src={image}
             alt={title}
             width={300}
             height={144}
             className="object-cover w-full h-full"
+            fallbackSrc={DEFAULT_IMAGE}
             placeholder="blur"
             blurDataURL="/blur-placeholder.png"
-            onError={e => {
-              e.currentTarget.src = DEFAULT_IMAGE;
-            }}
             quality={80}
           />
         </Link>

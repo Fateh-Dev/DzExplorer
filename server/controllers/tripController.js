@@ -1,20 +1,27 @@
-const { Trip, Image, Comment, User, Profile } = require("../models");
+// const { Trip, Image, Comment, User, Profile } = require("../models");
 const { Op } = require("sequelize");
-
+const {
+  Trip,
+  Image,
+  Comment,
+  User,
+  Profile,
+  TripInclusion,
+  TripExclusion,
+  TripReview,
+  TripDay,
+  Accommodation,
+  PickupPoint
+} = require("../models");
 // Create new trip
 exports.createTrip = async (req, res) => {
   try {
-    const { title, description, rating, image, thumbnail, price, date } = req.body;
+    const { title, description, image, thumbnail, price, date } = req.body;
     const userId = req.user.id;
 
     // Validate required fields
     if (!title || !description || !price || !date) {
       return res.status(400).json({ error: "Title, description, price, and date are required" });
-    }
-
-    // Validate data types
-    if (rating && (rating < 1 || rating > 5)) {
-      return res.status(400).json({ error: "Rating must be between 1 and 5" });
     }
 
     if (price <= 0) {
@@ -25,9 +32,9 @@ exports.createTrip = async (req, res) => {
     const trip = await Trip.create({
       title: title.trim(),
       description: description.trim(),
-      rating: rating || null,
-      image: image?.trim() || null,
-      thumbnail: thumbnail?.trim() || null,
+      rating: 0, // Default rating for new trips
+      image: image?.trim() || null, // Allow null if not provided
+      thumbnail: thumbnail?.trim() || null, // Allow null if not provided
       price: parseFloat(price),
       date: new Date(date),
       userId
@@ -89,72 +96,81 @@ exports.getAllTrips = async (req, res) => {
   }
 };
 
-// Get trip by ID
+// Get trip by ID - Testing User association separately
 exports.getTripById = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log("Fetching trip ID:", id);
 
-    // Update your getTripById controller to include all relationships
     const trip = await Trip.findByPk(id, {
       include: [
         {
           model: Image,
           as: "images",
-          attributes: ["id", "url", "caption", "isMain"]
+          attributes: ["id", "url", "caption", "isMain"],
+          required: false
         },
         {
           model: Comment,
           as: "comments",
           attributes: ["id", "description", "rating", "createdAt"],
+          required: false,
           include: [
             {
               model: User,
-              attributes: ["id", "username"]
+              attributes: ["id", "username"],
+              required: false
             }
           ]
         },
         {
-          model: User,
+          model: User, // Trip creator/agency
           attributes: ["id", "username", "email"],
+          required: false,
           include: [
             {
               model: Profile,
               as: "profile",
-              attributes: ["name", "contactNumber1", "contactNumber2", "areaOfWork", "image"]
+              attributes: ["name", "contactNumber1", "contactNumber2", "areaOfWork", "image"],
+              required: false
             }
           ]
         },
-        // Add these new includes:
         {
           model: TripInclusion,
           as: "inclusions",
-          attributes: ["id", "text"]
+          attributes: ["id", "text"],
+          required: false
         },
         {
           model: TripExclusion,
           as: "exclusions",
-          attributes: ["id", "text"]
+          attributes: ["id", "text"],
+          required: false
         },
         {
           model: TripReview,
           as: "reviews",
-          attributes: ["id", "name", "country", "date", "comment", "rating"]
+          attributes: ["id", "name", "country", "date", "comment", "rating"],
+          required: false
         },
         {
           model: TripDay,
           as: "days",
           attributes: ["id", "dayTitle", "activities", "dayOrder"],
-          order: [["dayOrder", "ASC"]]
+          required: false
         },
         {
           model: Accommodation,
           as: "accommodations",
-          attributes: ["id", "name", "stars", "nights", "hasPool", "includesBreakfast", "description"]
+          attributes: ["id", "name", "stars", "nights", "hasPool", "includesBreakfast", "description"],
+          required: false
         },
         {
           model: PickupPoint,
           as: "pickupPoints",
-          attributes: ["id", "location", "time"]
+          attributes: ["id", "location", "time"],
+          required: false
         }
       ]
     });
@@ -163,10 +179,17 @@ exports.getTripById = async (req, res) => {
       return res.status(404).json({ error: "Trip not found" });
     }
 
-    res.json({ data: trip }); // Match frontend expectation
+    // Sort days by dayOrder if they exist
+    if (trip.days && Array.isArray(trip.days)) {
+      trip.days = trip.days.sort((a, b) => (a.dayOrder || 0) - (b.dayOrder || 0));
+    }
+
+    console.log("Trip found successfully:", trip.id);
+    res.json({ data: trip });
   } catch (error) {
     console.error("Get trip by ID error:", error);
-    res.status(500).json({ error: "Failed to fetch trip" });
+    console.error("Error details:", error.message);
+    res.status(500).json({ error: error.message });
   }
 };
 
