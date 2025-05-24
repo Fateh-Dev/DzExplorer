@@ -52,7 +52,7 @@ app.get("/health", (req, res) => {
     environment: process.env.NODE_ENV || "development"
   });
 });
-
+app.use("/api", require("./routes/upload"));
 // API routes
 app.use("/api", require("./routes/api"));
 
