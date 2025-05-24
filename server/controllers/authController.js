@@ -1,4 +1,5 @@
 const { User } = require("../models");
+const { Op } = require("sequelize"); // Add this import for operators
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { secret, expiresIn, issuer, audience } = require("../config/jwtConfig");
@@ -69,10 +70,10 @@ exports.register = asyncHandler(async (req, res) => {
     });
   }
 
-  // Check if user already exists
+  // Check if user already exists - FIXED: Use Op.or instead of $or
   const existingUser = await User.findOne({
     where: {
-      $or: [{ email: email.toLowerCase() }, { username: username.toLowerCase() }]
+      [Op.or]: [{ email: email.toLowerCase() }, { username: username.toLowerCase() }]
     }
   });
 

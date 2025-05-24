@@ -5,7 +5,7 @@ export async function getTrip(id: string) {
     console.log("Fetching trip with ID:", id); // is this 'undefined'? a number? a string?
 
     const res = await api.get(`/trips/details/${id}`, { withCredentials: false });
-    return res.data;
+    return res.data.data;
   } catch (error) {
     if (typeof error === "object" && error !== null && "response" in error) {
       type ErrorResponse = { response: { status: number; data: unknown } };

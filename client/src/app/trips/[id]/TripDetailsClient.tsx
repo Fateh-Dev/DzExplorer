@@ -63,7 +63,7 @@ const TripDetailsClient: React.FC<Props> = ({ trip }) => {
       <TripDescription trip={trip} isLoggedIn={isLoggedIn} />
       <TripLocation />
       <TripComments
-        comments={comments}
+        comments={comments || []}
         isLoggedIn={isLoggedIn}
         newComment={newComment}
         setNewComment={setNewComment}

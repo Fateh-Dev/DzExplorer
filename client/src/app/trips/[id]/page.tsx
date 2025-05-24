@@ -18,6 +18,7 @@ type PageProps = {
 
 export default async function TripDetailsPage({ params }: PageProps) {
   const { id } = await params; // Await the params Promise
+ 
   const trip = await getTrip(id);
   if (!trip) {
     return (
@@ -27,6 +28,7 @@ export default async function TripDetailsPage({ params }: PageProps) {
       </div>
     );
   }
-
+console.log("Trip data received:", trip);
+console.log("Trip images:", trip?.images);
   return <TripDetailsClient trip={trip} />;
 }

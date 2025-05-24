@@ -4,16 +4,28 @@ const { Comment, User, Trip } = require("../models");
 exports.addComment = async (req, res) => {
   try {
     const { tripId } = req.params;
+    const { description } = req.body;
     const userId = req.user.id;
 
-    // Create the comment
+    // Validate input
+    if (!description || description.trim() === "") {
+      return res.status(400).json({ error: "Comment description is required" });
+    }
+
+    // Verify trip exists
+    const trip = await Trip.findByPk(tripId);
+    if (!trip) {
+      return res.status(404).json({ error: "Trip not found" });
+    }
+
+    // Create comment
     const comment = await Comment.create({
-      ...req.body,
+      description: description.trim(),
       userId,
       tripId
     });
 
-    // Fetch the full comment with author info (using 'author' alias and correct fields)
+    // Return comment with user info
     const fullComment = await Comment.findByPk(comment.id, {
       include: [
         {
@@ -30,17 +42,20 @@ exports.addComment = async (req, res) => {
   }
 };
 
-// Get comments for a trip
+// Get comments for trip
 exports.getCommentsForTrip = async (req, res) => {
   try {
+    const { tripId } = req.params;
+
     const comments = await Comment.findAll({
-      where: { tripId: req.params.tripId },
+      where: { tripId },
       include: [
         {
           model: User,
           attributes: ["id", "username", "email"]
         }
-      ]
+      ],
+      order: [["createdAt", "ASC"]]
     });
 
     res.json(comments);
@@ -49,23 +64,24 @@ exports.getCommentsForTrip = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch comments" });
   }
 };
-// Delete comment by id
+
+// Delete comment
 exports.deleteComment = async (req, res) => {
   try {
-    const commentId = req.params.id;
-    const comment = await Comment.findByPk(commentId);
+    const { id } = req.params;
+    const userId = req.user.id;
 
+    const comment = await Comment.findByPk(id);
     if (!comment) {
       return res.status(404).json({ error: "Comment not found" });
     }
 
-    // Optional: check if current user owns the comment or is admin
-    // if (comment.userId !== req.user.id && req.user.role !== "Admin") {
-    //   return res.status(403).json({ error: "Not authorized to delete this comment" });
-    // }
+    // Authorization check
+    if (comment.userId !== userId && req.user.role !== "admin") {
+      return res.status(403).json({ error: "Not authorized to delete this comment" });
+    }
 
     await comment.destroy();
-
     res.json({ message: "Comment deleted successfully" });
   } catch (err) {
     console.error("Delete comment error:", err);

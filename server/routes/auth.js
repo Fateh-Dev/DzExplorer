@@ -9,6 +9,6 @@ router.post("/login", authController.login);
 
 // Protected routes
 router.get("/verify", authenticateToken, authController.verifyToken);
-router.post("/refresh", authenticateToken, authController.refreshToken);
+router.post("/refresh", authController.refreshToken);
 
 module.exports = router;

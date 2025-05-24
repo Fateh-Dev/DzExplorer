@@ -1,86 +1,61 @@
-const { Trip, Image, Comment, User } = require("../models");
+const { Trip, Image, Comment, User, Profile } = require("../models");
+const { Op } = require("sequelize");
 
-// 🆕 Create a new trip (for an agency)
-
+// Create new trip
 exports.createTrip = async (req, res) => {
   try {
     const { title, description, rating, image, thumbnail, price, date } = req.body;
-    const userId = req.user.id; // assuming req.user is set via auth middleware
+    const userId = req.user.id;
 
-    // Ensure all required fields are provided
+    // Validate required fields
     if (!title || !description || !price || !date) {
-      return res.status(400).json({ error: "All fields are required" });
+      return res.status(400).json({ error: "Title, description, price, and date are required" });
     }
 
-    // Create the trip
+    // Validate data types
+    if (rating && (rating < 1 || rating > 5)) {
+      return res.status(400).json({ error: "Rating must be between 1 and 5" });
+    }
+
+    if (price <= 0) {
+      return res.status(400).json({ error: "Price must be greater than 0" });
+    }
+
+    // Create trip
     const trip = await Trip.create({
-      title,
-      description,
-      rating,
-      image,
-      thumbnail,
-      price,
-      date,
+      title: title.trim(),
+      description: description.trim(),
+      rating: rating || null,
+      image: image?.trim() || null,
+      thumbnail: thumbnail?.trim() || null,
+      price: parseFloat(price),
+      date: new Date(date),
       userId
     });
 
     res.status(201).json(trip);
   } catch (error) {
-    // Improved error logging
-    console.error("Create Trip Error:", error);
+    console.error("Create trip error:", error);
 
-    // If it's a Sequelize ValidationError, log the details
     if (error.name === "SequelizeValidationError") {
       const validationErrors = error.errors.map(err => err.message);
-      console.error("Validation Errors:", validationErrors);
       return res.status(400).json({ error: "Validation failed", details: validationErrors });
     }
 
-    // General error logging to capture any other types of errors
-    console.error("General Error:", error.message || error);
-    res.status(500).json({ error: "Failed to create trip", details: error.message });
+    res.status(500).json({ error: "Failed to create trip" });
   }
 };
 
-// 📖 Get all trips
+// Get all trips
 exports.getAllTrips = async (req, res) => {
   try {
     const trips = await Trip.findAll({
       include: [
-        { model: Image, as: "images" },
-        { model: Comment, as: "comments" },
-        { model: User, attributes: ["username", "email"] }
-      ],
-      order: [["createdAt", "DESC"]]
-    });
-
-    res.json(trips);
-  } catch (error) {
-    console.error("Get Trips Error:", error);
-    res.status(500).json({ error: "Failed to fetch trips" });
-  }
-};
-exports.incrementViewCount = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const trip = await Trip.findByPk(id);
-    if (!trip) return res.status(404).json({ error: "Trip not found" });
-
-    await trip.increment("views");
-
-    res.status(200).json({ message: "View count incremented" });
-  } catch (error) {
-    console.error("Increment View Error:", error);
-    res.status(500).json({ error: "Failed to increment view count" });
-  }
-};
-// 🔍 Get a single trip by ID
-exports.getTripById = async (req, res) => {
-  try {
-    const trip = await Trip.findByPk(req.params.id, {
-      include: [
-        { model: Image, as: "images", attributes: ["id", "url", "isMain"] },
+        {
+          model: Image,
+          as: "images",
+          attributes: ["id", "url", "caption"]
+        },
         {
           model: Comment,
           as: "comments",
@@ -88,14 +63,7 @@ exports.getTripById = async (req, res) => {
           include: [
             {
               model: User,
-              attributes: ["username"]
-              // include: [
-              //   {
-              //     model: require("../models").Profile,
-              //     as: "profile",
-              //     attributes: ["name", "image"]
-              //   }
-              // ]
+              attributes: ["id", "username"]
             }
           ]
         },
@@ -104,75 +72,203 @@ exports.getTripById = async (req, res) => {
           attributes: ["id", "username", "email"],
           include: [
             {
-              model: require("../models").Profile,
+              model: Profile,
+              as: "profile",
+              attributes: ["name", "contactNumber1", "areaOfWork", "image"]
+            }
+          ]
+        }
+      ],
+      order: [["createdAt", "DESC"]]
+    });
+
+    res.json(trips);
+  } catch (error) {
+    console.error("Get all trips error:", error);
+    res.status(500).json({ error: "Failed to fetch trips" });
+  }
+};
+
+// Get trip by ID
+exports.getTripById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Update your getTripById controller to include all relationships
+    const trip = await Trip.findByPk(id, {
+      include: [
+        {
+          model: Image,
+          as: "images",
+          attributes: ["id", "url", "caption", "isMain"]
+        },
+        {
+          model: Comment,
+          as: "comments",
+          attributes: ["id", "description", "rating", "createdAt"],
+          include: [
+            {
+              model: User,
+              attributes: ["id", "username"]
+            }
+          ]
+        },
+        {
+          model: User,
+          attributes: ["id", "username", "email"],
+          include: [
+            {
+              model: Profile,
               as: "profile",
               attributes: ["name", "contactNumber1", "contactNumber2", "areaOfWork", "image"]
             }
           ]
+        },
+        // Add these new includes:
+        {
+          model: TripInclusion,
+          as: "inclusions",
+          attributes: ["id", "text"]
+        },
+        {
+          model: TripExclusion,
+          as: "exclusions",
+          attributes: ["id", "text"]
+        },
+        {
+          model: TripReview,
+          as: "reviews",
+          attributes: ["id", "name", "country", "date", "comment", "rating"]
+        },
+        {
+          model: TripDay,
+          as: "days",
+          attributes: ["id", "dayTitle", "activities", "dayOrder"],
+          order: [["dayOrder", "ASC"]]
+        },
+        {
+          model: Accommodation,
+          as: "accommodations",
+          attributes: ["id", "name", "stars", "nights", "hasPool", "includesBreakfast", "description"]
+        },
+        {
+          model: PickupPoint,
+          as: "pickupPoints",
+          attributes: ["id", "location", "time"]
         }
       ]
     });
 
-    if (!trip) return res.status(404).json({ error: "Trip not found" });
+    if (!trip) {
+      return res.status(404).json({ error: "Trip not found" });
+    }
 
-    res.json(trip);
+    res.json({ data: trip }); // Match frontend expectation
   } catch (error) {
-    console.error("Get Trip Error:", error);
+    console.error("Get trip by ID error:", error);
     res.status(500).json({ error: "Failed to fetch trip" });
   }
 };
 
-// ✏️ Update a trip
+// Update trip
 exports.updateTrip = async (req, res) => {
   try {
-    const trip = await Trip.findByPk(req.params.id);
-
-    if (!trip) return res.status(404).json({ error: "Trip not found" });
-
-    // Optional: Check if user owns the trip
-    // if (trip.userId !== req.user.id) return res.status(403).json({ error: 'Unauthorized' });
-
+    const { id } = req.params;
     const { title, description, rating, image, thumbnail, price, date } = req.body;
+    const userId = req.user.id;
 
-    await trip.update({ title, description, rating, image, thumbnail, price, date });
+    const trip = await Trip.findByPk(id);
+    if (!trip) {
+      return res.status(404).json({ error: "Trip not found" });
+    }
 
+    // Authorization check
+    if (trip.userId !== userId && req.user.role !== "admin") {
+      return res.status(403).json({ error: "Not authorized to update this trip" });
+    }
+
+    // Validate if provided
+    if (rating && (rating < 1 || rating > 5)) {
+      return res.status(400).json({ error: "Rating must be between 1 and 5" });
+    }
+
+    if (price && price <= 0) {
+      return res.status(400).json({ error: "Price must be greater than 0" });
+    }
+
+    // Update trip
+    const updateData = {};
+    if (title) updateData.title = title.trim();
+    if (description) updateData.description = description.trim();
+    if (rating !== undefined) updateData.rating = rating;
+    if (image !== undefined) updateData.image = image?.trim() || null;
+    if (thumbnail !== undefined) updateData.thumbnail = thumbnail?.trim() || null;
+    if (price) updateData.price = parseFloat(price);
+    if (date) updateData.date = new Date(date);
+
+    await trip.update(updateData);
     res.json(trip);
   } catch (error) {
-    console.error("Update Trip Error:", error);
+    console.error("Update trip error:", error);
     res.status(500).json({ error: "Failed to update trip" });
   }
 };
 
-// ❌ Delete a trip
+// Delete trip
 exports.deleteTrip = async (req, res) => {
   try {
-    const trip = await Trip.findByPk(req.params.id);
+    const { id } = req.params;
+    const userId = req.user.id;
 
-    if (!trip) return res.status(404).json({ error: "Trip not found" });
+    const trip = await Trip.findByPk(id);
+    if (!trip) {
+      return res.status(404).json({ error: "Trip not found" });
+    }
+
+    // Authorization check
+    if (trip.userId !== userId && req.user.role !== "admin") {
+      return res.status(403).json({ error: "Not authorized to delete this trip" });
+    }
 
     await trip.destroy();
-    res.json({ message: "Trip deleted" });
+    res.json({ message: "Trip deleted successfully" });
   } catch (error) {
-    console.error("Delete Trip Error:", error);
+    console.error("Delete trip error:", error);
     res.status(500).json({ error: "Failed to delete trip" });
   }
 };
 
-// get trips with pagination
-const { Op } = require("sequelize");
+// Increment view count
+exports.incrementViewCount = async (req, res) => {
+  try {
+    const { id } = req.params;
 
+    const trip = await Trip.findByPk(id);
+    if (!trip) {
+      return res.status(404).json({ error: "Trip not found" });
+    }
+
+    await trip.increment("views");
+    res.json({ message: "View count incremented" });
+  } catch (error) {
+    console.error("Increment view error:", error);
+    res.status(500).json({ error: "Failed to increment view count" });
+  }
+};
+
+// Get trips with pagination and filters
 exports.getTripsWithPagination = async (req, res) => {
   try {
     const { page = 1, limit = 8, startDate, endDate, search } = req.query;
-    const pageNumber = parseInt(page) || 1;
-    const pageLimit = parseInt(limit) || 8;
+    const pageNumber = Math.max(1, parseInt(page) || 1);
+    const pageLimit = Math.min(50, Math.max(1, parseInt(limit) || 8)); // Limit max to 50
     const offset = (pageNumber - 1) * pageLimit;
 
     const where = {};
 
     // Search filter
-    if (search) {
-      where[Op.or] = [{ title: { [Op.iLike]: `%${search}%` } }, { description: { [Op.iLike]: `%${search}%` } }];
+    if (search && search.trim()) {
+      where[Op.or] = [{ title: { [Op.iLike]: `%${search.trim()}%` } }, { description: { [Op.iLike]: `%${search.trim()}%` } }];
     }
 
     // Date filter
@@ -182,17 +278,16 @@ exports.getTripsWithPagination = async (req, res) => {
       if (endDate) where.date[Op.lte] = new Date(endDate);
     }
 
-    const trips = await Trip.findAll({
+    const { count, rows: trips } = await Trip.findAndCountAll({
       where,
-      attributes: ["id", "title", "price", "description", "image", "rating", "views", "date"],
+      attributes: ["id", "title", "price", "description", "image", "rating", "views", "date", "createdAt"],
       include: [
         {
-          model: require("../models").User,
-          as: "User",
+          model: User,
           attributes: ["id", "username", "email"],
           include: [
             {
-              model: require("../models").Profile,
+              model: Profile,
               as: "profile",
               attributes: ["name", "contactNumber1", "contactNumber2", "areaOfWork", "image"]
             }
@@ -204,9 +299,21 @@ exports.getTripsWithPagination = async (req, res) => {
       order: [["date", "ASC"]]
     });
 
-    res.json({ data: trips });
+    const totalPages = Math.ceil(count / pageLimit);
+
+    res.json({
+      data: trips,
+      pagination: {
+        currentPage: pageNumber,
+        totalPages,
+        totalItems: count,
+        itemsPerPage: pageLimit,
+        hasNextPage: pageNumber < totalPages,
+        hasPrevPage: pageNumber > 1
+      }
+    });
   } catch (error) {
-    console.error("Error fetching trips:", error);
-    res.status(500).json({ error: "Failed to fetch trips." });
+    console.error("Get trips with pagination error:", error);
+    res.status(500).json({ error: "Failed to fetch trips" });
   }
 };
